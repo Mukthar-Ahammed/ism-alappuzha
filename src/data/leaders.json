@@ -1,0 +1,38 @@
+[
+  {
+    "id": "leader-1",
+    "name": "Dr. Tariq Al-Mansoor",
+    "role": "District President",
+    "tenure": "2024 — Present",
+    "photo": "/images/leaders/president.svg",
+    "bio": "Leading ISM Alappuzha district committee, strengthening student academic circles and community outreach across all taluks.",
+    "committee": "current"
+  },
+  {
+    "id": "leader-2",
+    "name": "Amina Al-Farooqi",
+    "role": "General Secretary",
+    "tenure": "2024 — Present",
+    "photo": "/images/leaders/academic-director.svg",
+    "bio": "Directing district educational programs, weekly study forums, and annual youth summits.",
+    "committee": "current"
+  },
+  {
+    "id": "leader-3",
+    "name": "Zayd Ibn Sulayman",
+    "role": "Treasurer & Welfare Lead",
+    "tenure": "2023 — Present",
+    "photo": "/images/leaders/student-welfare.svg",
+    "bio": "Overseeing student welfare funds, campus relief projects, and scholarship initiatives.",
+    "committee": "current"
+  },
+  {
+    "id": "leader-4",
+    "name": "Prof. Abdur Rahman Alappuzha",
+    "role": "Former District President",
+    "tenure": "2020 — 2024",
+    "photo": "/images/leaders/editor.svg",
+    "bio": "Pioneered the ISM Alappuzha district journal and campus reading circles movement.",
+    "committee": "past"
+  }
+]

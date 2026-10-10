@@ -1,0 +1,32 @@
+[
+  {
+    "id": "dhikr-1",
+    "category": "Morning & Evening",
+    "arabic": "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ",
+    "transliteration": "Asbahna wa asbahal-mulku lillah, wal-hamdu lillah",
+    "malayalam": "ഞങ്ങളും അല്ലാഹുവിന്റെ സർവ്വ ആധിപത്യവും പ്രഭാതത്തിലേക്ക് പ്രവേശിച്ചിരിക്കുന്നു. സർവ്വ സ്തുതിയും അല്ലാഹുവിന്നാണ്.",
+    "source": "Sahih Muslim 2723",
+    "repeatCount": 1,
+    "audioUrl": ""
+  },
+  {
+    "id": "dhikr-2",
+    "category": "After Salah",
+    "arabic": "أَسْتَغْفِرُ اللَّهَ (٣ مرات)، اللَّهُمَّ أَنْتَ السَّلَامُ وَمِنْكَ السَّلَامُ",
+    "transliteration": "Astaghfirullah (3x), Allahumma antas-Salamu wa minkas-Salam",
+    "malayalam": "ഞാൻ അല്ലാഹുവോട് പാപമോചനം തേടുന്നു (3 തവണ). അല്ലാഹുവേ, നീ സമാധാനമാകുന്നു. നിന്നിൽ നിന്നാകുന്നു സമാധാനം.",
+    "source": "Sahih Muslim 591",
+    "repeatCount": 3,
+    "audioUrl": ""
+  },
+  {
+    "id": "dhikr-3",
+    "category": "Sleep",
+    "arabic": "بِاسْمِكَ اللَّهُمَّ أَمُوتُ وَأَحْيَا",
+    "transliteration": "Bismika Allahumma amutu wa ahya",
+    "malayalam": "അല്ലാഹുവേ, നിന്റെ നാമത്തിൽ ഞാൻ മരണപ്പെടുകയും (ഉറങ്ങുകയും) ജീവിക്കുകയും (ഉണരുകയും) ചെയ്യുന്നു.",
+    "source": "Sahih Bukhari 6312",
+    "repeatCount": 1,
+    "audioUrl": ""
+  }
+]

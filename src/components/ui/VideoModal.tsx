@@ -1,0 +1,111 @@
+"use client";
+
+import React, { useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
+
+export interface VideoModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  youtubeId: string;
+  title?: string;
+}
+
+export const VideoModal: React.FC<VideoModalProps> = ({
+  isOpen,
+  onClose,
+  youtubeId,
+  title = "Video Player",
+}) => {
+  const modalRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Close on ESC key press & handle focus management
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    // Auto-focus close button when modal opens
+    closeButtonRef.current?.focus();
+
+    // Prevent body scroll when modal is open
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "unset";
+    };
+  }, [isOpen, onClose]);
+
+  if (!isOpen || typeof window === "undefined") return null;
+
+  return createPortal(
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 md:p-10 font-body animate-in fade-in duration-200"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="video-modal-title"
+    >
+      {/* Backdrop */}
+      <div
+        className="fixed inset-0 bg-primary/80 backdrop-blur-md transition-opacity"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+
+      {/* Modal Container */}
+      <div
+        ref={modalRef}
+        className="relative w-full max-w-4xl bg-white rounded-[22px] overflow-hidden shadow-floating border border-primary/10 z-10 flex flex-col"
+      >
+        {/* Header Bar */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-primary/10 bg-primary-tint">
+          <h3
+            id="video-modal-title"
+            className="font-display text-lg font-bold text-primary truncate max-w-[85%]"
+          >
+            {title}
+          </h3>
+          <button
+            ref={closeButtonRef}
+            onClick={onClose}
+            className="p-2 rounded-full text-text-muted hover:text-primary hover:bg-primary/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
+            aria-label="Close modal"
+          >
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
+
+        {/* Responsive Video Embed Area (Loads YouTube iframe ONLY when open) */}
+        <div className="relative w-full aspect-video bg-black">
+          <iframe
+            src={`https://www.youtube-nocookie.com/embed/${youtubeId}?autoplay=1&rel=0`}
+            title={title}
+            className="absolute inset-0 w-full h-full border-0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            loading="lazy"
+          />
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+};

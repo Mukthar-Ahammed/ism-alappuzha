@@ -1,0 +1,134 @@
+@import "tailwindcss";
+
+:root {
+  /* Global Design System Tokens for ISM Alappuzha */
+  --bg: #FFFFFF;
+  --primary: #10241E;
+  --primary-hover: #16302A;
+  --primary-tint: rgba(16, 36, 30, 0.05);
+
+  --secondary: #C9A24B;
+  --secondary-hover: #B8923B;
+  --secondary-tint: rgba(201, 162, 75, 0.12);
+
+  --text-main: #111827;
+  --text-muted: #4B5563;
+  --border-subtle: rgba(16, 36, 30, 0.12);
+
+  /* Typography CSS Variables (overridden by next/font in layout) */
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body: "Inter", system-ui, -apple-system, sans-serif;
+  --font-arabic: "Noto Naskh Arabic", Georgia, serif;
+  --font-malayalam: "Noto Sans Malayalam", sans-serif;
+
+  /* UI Tokens */
+  --radius-card: 22px;
+  --shadow-soft: 0 10px 30px -10px rgba(16, 36, 30, 0.08);
+}
+
+@theme {
+  --color-bg: var(--bg);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-tint: var(--primary-tint);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-hover: var(--secondary-hover);
+  --color-secondary-tint: var(--secondary-tint);
+
+  --color-text-main: var(--text-main);
+  --color-text-muted: var(--text-muted);
+  --color-border-subtle: var(--border-subtle);
+
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --font-arabic: var(--font-arabic);
+  --font-malayalam: var(--font-malayalam);
+
+  --border-radius-card: var(--radius-card);
+
+  --max-width-site: 1280px;
+}
+
+/* Base Light Theme Styles */
+html {
+  scroll-behavior: smooth;
+  background-color: var(--bg);
+  color: var(--text-main);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  min-height: 100vh;
+  background-color: var(--bg);
+  color: var(--text-main);
+}
+
+::selection {
+  background-color: var(--secondary-tint);
+  color: var(--primary);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F9FAFB;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #D1D5DB;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--secondary);
+}
+
+/* Arabic typography utility */
+.font-arabic {
+  font-family: var(--font-arabic), serif;
+  direction: rtl;
+}
+
+/* Malayalam typography utility */
+.font-malayalam {
+  font-family: var(--font-malayalam), sans-serif;
+}
+
+/* Admin shell theme and content-language utilities */
+.admin-shell {
+  color-scheme: light;
+}
+
+.admin-arabic {
+  direction: rtl;
+  font-family: var(--font-arabic), serif;
+  line-height: 1.9;
+}
+
+.admin-malayalam {
+  font-family: var(--font-malayalam), sans-serif;
+  line-height: 1.8;
+}
+
+@media (prefers-color-scheme: dark) {
+  .admin-shell {
+    --bg: #0f1614;
+    --primary: #f3f7f5;
+    --primary-hover: #ffffff;
+    --primary-tint: rgba(255, 255, 255, 0.08);
+    --text-main: #eef2f0;
+    --text-muted: #b8c2bd;
+    --border-subtle: rgba(255, 255, 255, 0.14);
+    --shadow-soft: 0 10px 30px -10px rgba(0, 0, 0, 0.35);
+    color-scheme: dark;
+  }
+}

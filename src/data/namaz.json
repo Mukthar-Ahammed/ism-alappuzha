@@ -1,0 +1,74 @@
+{
+  "rakahCounts": [
+    { "name": "Fajr", "rakah": 2 },
+    { "name": "Zuhr", "rakah": 4 },
+    { "name": "Asr", "rakah": 4 },
+    { "name": "Maghrib", "rakah": 3 },
+    { "name": "Isha", "rakah": 4 }
+  ],
+  "steps": [
+    {
+      "id": "niyyah",
+      "stepNumber": 1,
+      "title": "Niyyah (Intention)",
+      "arabic": "نَوَيْتُ أَنْ أُصَلِّيَ لِلَّهِ تَعَالَى",
+      "malayalam": "ഏത് നിസ്കാരമാണോ നിർവ്വഹിക്കുന്നത് അത് അല്ലാഹുവിന് വേണ്ടി നിർവ്വഹിക്കുന്നു എന്ന് മനസ്സിൽ കരുതലാണ് നിയ്യത്ത്.",
+      "dos": ["Make sincere intention in the heart.", "Face the Qiblah cleanly."],
+      "donts": ["Do not utter loud intentions that disturb others."]
+    },
+    {
+      "id": "takbeer",
+      "stepNumber": 2,
+      "title": "Takbeer al-Ihram",
+      "arabic": "اللَّهُ أَكْبَرُ",
+      "malayalam": "ഇരു കൈകളും ചെവിയുടെ കട്ടിളകൾക്ക് അല്ലെങ്കിൽ തോളുകൾക്ക് സമമായി ഉയർത്തി 'അല്ലാഹു അക്ബർ' എന്ന് പറയുക.",
+      "dos": ["Raise hands to shoulders or earlobes.", "Keep palms facing Qiblah."],
+      "donts": ["Avoid waving or dropping hands abruptly."]
+    },
+    {
+      "id": "qiyam",
+      "stepNumber": 3,
+      "title": "Qiyam & Recitation",
+      "arabic": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+      "malayalam": "വലതുകൈ ഇടതുകൈയിന്മേൽ നെഞ്ചോട് ചേർത്ത് വെച്ച് സൂറത്തുൽ ഫാത്തിഹയും തുടർന്ന് മറ്റൊരു സൂറത്തും ഓതുക.",
+      "dos": ["Recite Surah Al-Fatiha with proper Tajweed.", "Focus gaze on the place of Sujood."],
+      "donts": ["Do not look around or look up at the sky."]
+    },
+    {
+      "id": "ruku",
+      "stepNumber": 4,
+      "title": "Ruku (Bowing)",
+      "arabic": "سُبْحَانَ رَبِّيَ الْعَظِيمِ وَبِحَمْدِهِ",
+      "malayalam": "മുട്ടുകളിൽ കൈകൾ ഉറപ്പിച്ചു വെച്ച് മുതുക് സമമാക്കി കുനിയുക. മൂന്ന് തവണ തസ്ബീഹ് ചൊല്ലുക.",
+      "dos": ["Keep back straight and parallel to ground.", "Grasp knees with fingers spread."],
+      "donts": ["Do not arch or bend the back excessively."]
+    },
+    {
+      "id": "sujood",
+      "stepNumber": 5,
+      "title": "Sujood (Prostration)",
+      "arabic": "سُبْحَانَ رَبِّيَ الْأَعْلَى وَبِحَمْدِهِ",
+      "malayalam": "നെറ്റി, മൂക്ക്, ഇരു കൈപ്പത്തികൾ, ഇരു മുട്ടുകൾ, ഇരു കാൽവിരലുകളുടെ അടിഭാഗം എന്നിവ നിലത്തുറപ്പിച്ച് സുജൂദ് ചെയ്യുക.",
+      "dos": ["Ensure seven limbs touch the ground firmly.", "Supplicate sincerely in Sujood."],
+      "donts": ["Do not rest forearms flat on the ground like a dog."]
+    },
+    {
+      "id": "tashahhud",
+      "stepNumber": 6,
+      "title": "Tashahhud & Salawat",
+      "arabic": "التَّحِيَّاتُ لِلَّهِ وَالصَّلَوَاتُ وَالطَّيِّبَاتُ",
+      "malayalam": "ഇരുത്തത്തിൽ തശഹ്ഹുദും പ്രവാചകന്റെ മേലെയുള്ള സ്വലാത്തും ഇബ്രാഹിമിയ്യ സ്വലാത്തും ചൊല്ലുക.",
+      "dos": ["Point right index finger during Shahadah.", "Sit calmly in Iftirash or Tawarruk."],
+      "donts": ["Do not rush through the recitation."]
+    },
+    {
+      "id": "salam",
+      "stepNumber": 7,
+      "title": "Tasleem (Salam)",
+      "arabic": "السَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللَّهِ",
+      "malayalam": "ആദ്യം വലത്തോട്ടും പിന്നീട് ഇടത്തോട്ടും തിരിഞ്ഞ് അസ്സലാമു അലൈക്കും വറഹ്മത്തുല്ലാഹ് എന്ന് പറഞ്ഞ് നിസ്കാരം അവസാനിപ്പിക്കുക.",
+      "dos": ["Turn head until cheek is visible from behind.", "Wish peace with intention for angels and believers."],
+      "donts": ["Do not turn shoulders away from Qiblah."]
+    }
+  ]
+}
