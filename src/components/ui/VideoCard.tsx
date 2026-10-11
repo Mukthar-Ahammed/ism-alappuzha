@@ -156,7 +156,7 @@ export const VideoCard: React.FC<VideoCardProps> = ({
         </div>
       </div>
 
-      {/* Content Info */}
+      {/* Content Info. The title link/button stretches over the whole card, so a tap anywhere plays. */}
       <div className="p-5 flex flex-col flex-1 justify-between">
         <div>
           <h3 className="font-display text-base font-bold text-primary leading-snug line-clamp-2 group-hover:text-secondary transition-colors">
@@ -164,7 +164,7 @@ export const VideoCard: React.FC<VideoCardProps> = ({
               <button
                 type="button"
                 onClick={handleClick}
-                className="text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary rounded-xs"
+                className="text-left cursor-pointer after:absolute after:inset-0 after:z-20 after:content-[''] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary rounded-xs"
               >
                 {title}
               </button>
@@ -173,7 +173,7 @@ export const VideoCard: React.FC<VideoCardProps> = ({
                 href={video.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary rounded-xs"
+                className="after:absolute after:inset-0 after:z-20 after:content-[''] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary rounded-xs"
               >
                 {title}
               </a>

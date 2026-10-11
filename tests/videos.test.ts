@@ -98,14 +98,14 @@ describe("videoFormSchema", () => {
   });
 
   it.each([
-    ["42:15", true],
-    ["1:05:30", true],
-    ["", true],
-    ["90", false],
-    ["42:75", false],
-    ["abc", false],
-  ])("duration %j valid: %s", (duration, valid) => {
-    expect(videoFormSchema.safeParse({ ...validForm, duration }).success).toBe(valid);
+    ["42:15", "42:15"],
+    ["1:05:30", "1:05:30"],
+    ["", null],
+    ["90", null],
+    ["42:75", null],
+    ["abc", null],
+  ])("duration %j is stored as %j", (duration, stored) => {
+    expect(videoFormSchema.parse({ ...validForm, duration }).duration).toBe(stored);
   });
 
   it("keeps Malayalam title and speaker and stores empty or missing ones as null", () => {
@@ -117,9 +117,24 @@ describe("videoFormSchema", () => {
     expect(videoFormSchema.safeParse({ ...validForm, titleMl: "a".repeat(201) }).success).toBe(false);
   });
 
-  it("requires a real date and a known category", () => {
-    expect(videoFormSchema.safeParse({ ...validForm, recordedOn: "14/09/2026" }).success).toBe(false);
-    expect(videoFormSchema.safeParse({ ...validForm, category: "Music" }).success).toBe(false);
+  it("needs only link, title and speaker; the rest fall back to defaults", () => {
+    const today = new Date().toISOString().slice(0, 10);
+    const parsed = videoFormSchema.parse({ id: "", link: validForm.link, title: "T", speaker: "S" });
+
+    expect(parsed).toMatchObject({
+      category: "Speeches",
+      recordedOn: today,
+      duration: null,
+      thumbnailMediaId: null,
+      titleMl: null,
+      speakerMl: null,
+    });
+    expect(videoFormSchema.parse({ ...validForm, recordedOn: "14/09/2026" }).recordedOn).toBe(today);
+    expect(videoFormSchema.parse({ ...validForm, category: "Music" }).category).toBe("Speeches");
+  });
+
+  it("requires a speaker", () => {
+    expect(videoFormSchema.safeParse({ ...validForm, speaker: " " }).success).toBe(false);
   });
 
   it("ignores prefilled links the site does not accept", () => {

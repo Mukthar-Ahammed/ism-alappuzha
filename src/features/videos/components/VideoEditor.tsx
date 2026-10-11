@@ -1,19 +1,11 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import { useActionState, useState } from "react";
-import { Button, Card, CardContent, FormField, Input, Select, Skeleton } from "@/components/admin/ui";
+import { Button, Card, CardContent, FormField, Input } from "@/components/admin/ui";
 import { ActionMessage } from "@/components/admin/ActionMessage";
 import { livePlatformLabels, parseLiveLink } from "@/lib/live-links";
 import { saveVideoAction } from "@/features/videos/server/actions";
-import { videoCategories } from "@/features/videos/schemas";
 import type { AdminVideo, VideoActionState } from "@/features/videos/types";
-
-// Loaded only when the editor opens, keeping upload code out of every other admin page.
-const ImageUploadField = dynamic(() => import("@/components/admin/ImageUploadField"), {
-  ssr: false,
-  loading: () => <Skeleton className="h-40 w-full" />,
-});
 
 export function VideoEditor({
   video,
@@ -34,6 +26,19 @@ export function VideoEditor({
       <CardContent>
         <form action={formAction} className="space-y-4">
           <input type="hidden" name="id" value={video?.id ?? ""} />
+          {/* Only link, title and speaker are asked for. An existing video keeps its other
+              stored details; a new one gets the defaults in videoFormSchema. */}
+          {video && (
+            <>
+              <input type="hidden" name="titleMl" value={video.titleMl ?? ""} />
+              <input type="hidden" name="speakerMl" value={video.speakerMl ?? ""} />
+              <input type="hidden" name="category" value={video.category} />
+              <input type="hidden" name="recordedOn" value={video.recordedOn} />
+              <input type="hidden" name="duration" value={video.duration ?? ""} />
+              <input type="hidden" name="thumbnailMediaId" value={video.thumbnail?.id ?? ""} />
+              <input type="hidden" name="thumbnailAlt" value={video.thumbnail?.alt ?? ""} />
+            </>
+          )}
           <FormField label="Video link (YouTube, Facebook or Instagram)" htmlFor="video-link">
             <Input
               id="video-link"
@@ -50,8 +55,7 @@ export function VideoEditor({
             (parsed.ok ? (
               <p className="text-sm font-semibold text-emerald-800">
                 Detected: {livePlatformLabels[parsed.data.platform]}
-                {parsed.data.platform !== "youtube" &&
-                  ". Upload a thumbnail below, otherwise a default image is used."}
+                {parsed.data.platform !== "youtube" && ". A default image is shown as its thumbnail."}
               </p>
             ) : (
               <p role="alert" className="text-sm font-semibold text-red-800">
@@ -68,69 +72,16 @@ export function VideoEditor({
                 defaultValue={video?.title ?? prefill.title}
               />
             </FormField>
-            <FormField label="Speaker (optional)" htmlFor="video-speaker">
+            <FormField label="Speaker" htmlFor="video-speaker">
               <Input
                 id="video-speaker"
                 name="speaker"
+                required
                 maxLength={120}
                 defaultValue={video?.speaker ?? prefill.speaker}
               />
             </FormField>
-            <FormField label="Title (Malayalam, optional)" htmlFor="video-title-ml">
-              <Input
-                id="video-title-ml"
-                name="titleMl"
-                lang="ml"
-                maxLength={200}
-                className="admin-malayalam"
-                defaultValue={video?.titleMl ?? ""}
-              />
-            </FormField>
-            <FormField label="Speaker (Malayalam, optional)" htmlFor="video-speaker-ml">
-              <Input
-                id="video-speaker-ml"
-                name="speakerMl"
-                lang="ml"
-                maxLength={120}
-                className="admin-malayalam"
-                defaultValue={video?.speakerMl ?? ""}
-              />
-            </FormField>
           </div>
-          <p className="text-xs text-text-muted">
-            Visitors who switch the site to Malayalam see the Malayalam title and speaker; left empty,
-            they see the English.
-          </p>
-          <div className="grid gap-4 sm:grid-cols-3">
-            <FormField label="Category" htmlFor="video-category">
-              <Select id="video-category" name="category" defaultValue={video?.category ?? "Speeches"}>
-                {videoCategories.map((category) => (
-                  <option key={category} value={category}>
-                    {category}
-                  </option>
-                ))}
-              </Select>
-            </FormField>
-            <FormField label="Date of the video" htmlFor="video-date">
-              <Input id="video-date" name="recordedOn" type="date" required defaultValue={video?.recordedOn} />
-            </FormField>
-            <FormField label="Length (optional, e.g. 42:15)" htmlFor="video-duration">
-              <Input
-                id="video-duration"
-                name="duration"
-                maxLength={8}
-                placeholder="42:15"
-                defaultValue={video?.duration ?? ""}
-              />
-            </FormField>
-          </div>
-
-          <ImageUploadField
-            purpose="video_thumbnail"
-            mediaInputName="thumbnailMediaId"
-            altInputName="thumbnailAlt"
-            initial={{ media: video?.thumbnail ?? null, alt: video?.thumbnail?.alt ?? "" }}
-          />
 
           <div className="flex flex-wrap items-center gap-3">
             <Button type="submit" disabled={pending}>

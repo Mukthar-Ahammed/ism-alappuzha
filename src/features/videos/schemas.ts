@@ -21,7 +21,7 @@ function optionalMalayalam(max: number) {
     .string()
     .trim()
     .max(max)
-    .default("")
+    .prefault("")
     .transform((value) => (value === "" ? null : value));
 }
 
@@ -29,9 +29,11 @@ export const videoFormSchema = z.object({
   id: optionalUuid,
   title: z.string().trim().min(1, "Enter a title.").max(200),
   titleMl: optionalMalayalam(200),
-  speaker: z.string().trim().max(120).default(""),
+  speaker: z.string().trim().min(1, "Enter the speaker.").max(120),
   speakerMl: optionalMalayalam(120),
-  category: z.enum(videoCategories, { message: "Choose a category." }),
+  // The admin form asks only for link, title and speaker; the rest keep their stored
+  // values when editing and fall back to these defaults for a new video.
+  category: z.enum(videoCategories).catch("Speeches"),
   link: z
     .string()
     .max(2048)
@@ -48,16 +50,18 @@ export const videoFormSchema = z.object({
   recordedOn: z
     .string()
     .trim()
-    .refine(
-      (value) => datePattern.test(value) && !Number.isNaN(new Date(`${value}T00:00:00Z`).getTime()),
-      "Enter the date of the video."
+    .prefault("")
+    .transform((value) =>
+      datePattern.test(value) && !Number.isNaN(new Date(`${value}T00:00:00Z`).getTime())
+        ? value
+        : new Date().toISOString().slice(0, 10)
     ),
   duration: z
     .string()
     .trim()
-    .refine((value) => value === "" || durationPattern.test(value), "Write the length as 42:15 or 1:05:30.")
-    .transform((value) => (value === "" ? null : value)),
-  thumbnailMediaId: optionalUuid,
+    .prefault("")
+    .transform((value) => (durationPattern.test(value) ? value : null)),
+  thumbnailMediaId: optionalUuid.prefault(""),
   thumbnailAlt: z.string().trim().max(200).default(""),
 });
 
