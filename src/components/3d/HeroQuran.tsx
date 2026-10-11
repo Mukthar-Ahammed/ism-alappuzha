@@ -17,7 +17,7 @@ function canShowLiveModel(): boolean {
   if (connection?.saveData || /(^|-)2g$/.test(connection?.effectiveType ?? "")) return false;
 
   const memory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
-  if (memory !== undefined && memory < 4) return false;
+  if (memory !== undefined && memory < 2) return false;
 
   try {
     return Boolean(document.createElement("canvas").getContext("webgl"));

@@ -12,12 +12,20 @@ const baseCameraZ = 5.5;
 /** Below this width:height ratio the camera backs off so the whole book stays in frame. */
 const minAspectForBaseZ = 0.85;
 
+/** Radians of spin per pixel of horizontal touch drag. */
+const touchSpinPerPx = 0.012;
+
+/** Touch spin: `offset` follows the finger while `dragging`, then eases back to the resting pose. */
+type TouchSpin = { offset: number; dragging: boolean };
+
 interface QuranMeshProps {
   mousePosRef: React.MutableRefObject<{ x: number; y: number }>;
+  spinRef: React.MutableRefObject<TouchSpin>;
   onReady: () => void;
 }
 
-const QuranMesh: React.FC<QuranMeshProps> = ({ mousePosRef, onReady }) => {
+const QuranMesh: React.FC<QuranMeshProps> = ({ mousePosRef, spinRef, onReady }) => {
+  const spinGroupRef = useRef<THREE.Group>(null);
   const groupRef = useRef<THREE.Group>(null);
   const floatGroupRef = useRef<THREE.Group>(null);
   const readyRef = useRef(false);
@@ -90,6 +98,18 @@ const QuranMesh: React.FC<QuranMeshProps> = ({ mousePosRef, onReady }) => {
     const targetTiltY = mousePosRef.current.x * 0.12;
     const lerpSpeed = Math.min(delta * 4, 1);
 
+    const spin = spinRef.current;
+    if (!spin.dragging) {
+      spin.offset = THREE.MathUtils.lerp(spin.offset, 0, Math.min(delta * 1.5, 1));
+    }
+    if (spinGroupRef.current) {
+      spinGroupRef.current.rotation.y = THREE.MathUtils.lerp(
+        spinGroupRef.current.rotation.y,
+        spin.offset,
+        Math.min(delta * 12, 1)
+      );
+    }
+
     if (groupRef.current) {
       groupRef.current.rotation.x = THREE.MathUtils.lerp(
         groupRef.current.rotation.x,
@@ -110,9 +130,11 @@ const QuranMesh: React.FC<QuranMeshProps> = ({ mousePosRef, onReady }) => {
   });
 
   return (
-    <group ref={groupRef} rotation={[defaultRotX, defaultRotY, defaultRotZ]}>
-      <group ref={floatGroupRef}>
-        <primitive object={scene} />
+    <group ref={spinGroupRef}>
+      <group ref={groupRef} rotation={[defaultRotX, defaultRotY, defaultRotZ]}>
+        <group ref={floatGroupRef}>
+          <primitive object={scene} />
+        </group>
       </group>
     </group>
   );
@@ -125,7 +147,8 @@ const ResponsiveCamera: React.FC = () => {
 
   useEffect(() => {
     const { camera } = getState();
-    camera.position.z = aspect >= minAspectForBaseZ ? baseCameraZ : (baseCameraZ * minAspectForBaseZ) / aspect;
+    camera.position.z =
+      aspect >= minAspectForBaseZ ? baseCameraZ : (baseCameraZ * minAspectForBaseZ) / aspect;
     camera.updateProjectionMatrix();
   }, [getState, aspect]);
 
@@ -135,6 +158,8 @@ const ResponsiveCamera: React.FC = () => {
 /** The live 3D scene. HeroQuran loads it on demand and shows a still until onReady fires. */
 export default function HeroQuranCanvas({ onReady }: { onReady: () => void }) {
   const mousePosRef = useRef({ x: 0, y: 0 });
+  const spinRef = useRef<TouchSpin>({ offset: 0, dragging: false });
+  const lastTouchXRef = useRef(0);
   const [finePointer] = useState(() => window.matchMedia("(pointer: fine)").matches);
 
   useEffect(() => {
@@ -147,38 +172,73 @@ export default function HeroQuranCanvas({ onReady }: { onReady: () => void }) {
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
+  // Touch: a sideways swipe spins the book. `pan-y` leaves vertical swipes to the browser,
+  // which scrolls the page and cancels the drag, so the book never traps scrolling.
+  const touchHandlers = finePointer
+    ? undefined
+    : {
+        onPointerDown: (e: React.PointerEvent) => {
+          lastTouchXRef.current = e.clientX;
+          spinRef.current.dragging = true;
+        },
+        onPointerMove: (e: React.PointerEvent) => {
+          if (!spinRef.current.dragging) return;
+          spinRef.current.offset += (e.clientX - lastTouchXRef.current) * touchSpinPerPx;
+          lastTouchXRef.current = e.clientX;
+        },
+        onPointerUp: () => {
+          spinRef.current.dragging = false;
+        },
+        onPointerCancel: () => {
+          spinRef.current.dragging = false;
+        },
+      };
+
   return (
-    <Canvas
-      camera={{ position: [0, 0, baseCameraZ], fov: 42 }}
-      gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}
-      dpr={[1, 1.75]}
-      className={finePointer ? "cursor-grab active:cursor-grabbing" : undefined}
+    <div
+      className="h-full w-full"
+      style={finePointer ? undefined : { touchAction: "pan-y" }}
+      {...touchHandlers}
     >
-      <ResponsiveCamera />
+      <Canvas
+        camera={{ position: [0, 0, baseCameraZ], fov: 42 }}
+        gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}
+        dpr={[1, 1.75]}
+        className={finePointer ? "cursor-grab active:cursor-grabbing" : undefined}
+      >
+        <ResponsiveCamera />
 
-      {/* Lighting */}
-      <ambientLight intensity={1.3} />
-      <directionalLight position={[5, 8, 5]} intensity={2.6} color="#FAF3E0" castShadow />
-      <directionalLight position={[-5, -4, -3]} intensity={0.6} color="#C9A24B" />
+        {/* Lighting */}
+        <ambientLight intensity={1.3} />
+        <directionalLight position={[5, 8, 5]} intensity={2.6} color="#FAF3E0" castShadow />
+        <directionalLight position={[-5, -4, -3]} intensity={0.6} color="#C9A24B" />
 
-      {/* Drag to rotate with a mouse. Touch screens skip it so a swipe over the book scrolls the page. */}
-      {finePointer && (
-        <OrbitControls
-          enableZoom={false}
-          enablePan={false}
-          rotateSpeed={0.8}
-          minPolarAngle={Math.PI / 4}
-          maxPolarAngle={(3 * Math.PI) / 4}
+        {/* Drag to rotate with a mouse. Touch screens use the sideways swipe above instead. */}
+        {finePointer && (
+          <OrbitControls
+            enableZoom={false}
+            enablePan={false}
+            rotateSpeed={0.8}
+            minPolarAngle={Math.PI / 4}
+            maxPolarAngle={(3 * Math.PI) / 4}
+          />
+        )}
+
+        {/* Soft Contact Shadow beneath model */}
+        <ContactShadows
+          position={[0, -1.8, 0]}
+          opacity={0.45}
+          scale={8}
+          blur={2.2}
+          far={3.5}
+          color="#10241E"
         />
-      )}
 
-      {/* Soft Contact Shadow beneath model */}
-      <ContactShadows position={[0, -1.8, 0]} opacity={0.45} scale={8} blur={2.2} far={3.5} color="#10241E" />
-
-      {/* 3D Quran Mesh */}
-      <Suspense fallback={null}>
-        <QuranMesh mousePosRef={mousePosRef} onReady={onReady} />
-      </Suspense>
-    </Canvas>
+        {/* 3D Quran Mesh */}
+        <Suspense fallback={null}>
+          <QuranMesh mousePosRef={mousePosRef} spinRef={spinRef} onReady={onReady} />
+        </Suspense>
+      </Canvas>
+    </div>
   );
 }
