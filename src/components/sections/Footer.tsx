@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
@@ -65,6 +65,54 @@ function scrollToTop() {
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
 }
+
+/**
+ * Floats in the bottom-right corner once the reader has scrolled past the first screen.
+ * On phones it moves up while the Namaz guide's floating "Skip to" pill is showing.
+ */
+const BackToTop: React.FC<{ label: string }> = ({ label }) => {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const shown = window.scrollY > window.innerHeight * 0.6;
+      setVisible((previous) => (previous === shown ? previous : shown));
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    update();
+
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, []);
+
+  return (
+    <button
+      type="button"
+      onClick={scrollToTop}
+      aria-label={label}
+      title={label}
+      tabIndex={visible ? 0 : -1}
+      aria-hidden={!visible}
+      className={`fixed right-4 bottom-[max(1.25rem,env(safe-area-inset-bottom))] z-40 flex h-12 w-12 items-center justify-center rounded-full bg-secondary text-primary shadow-floating ring-1 ring-primary/20 transition-all duration-300 hover:bg-primary hover:text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 sm:right-8 sm:bottom-8 max-sm:[body:has([data-floating-skip=true])_&]:bottom-[max(5rem,calc(env(safe-area-inset-bottom)+3.75rem))] motion-reduce:transition-none ${
+        visible ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-4 opacity-0"
+      }`}
+    >
+      <svg aria-hidden="true" className="h-5 w-5 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 19V5m-6 6l6-6 6 6" />
+      </svg>
+    </button>
+  );
+};
 
 export const Footer: React.FC = () => {
   const t = useCopy(copy);
@@ -186,21 +234,6 @@ export const Footer: React.FC = () => {
 
       {/* Copyright Bar */}
       <Container className="mt-10 sm:mt-12 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between text-center sm:text-left text-xs text-white/50 gap-4">
-        <button
-          type="button"
-          onClick={scrollToTop}
-          className="group order-first sm:order-last inline-flex min-h-11 items-center gap-2.5 rounded-full border border-secondary/40 bg-secondary/10 py-1.5 pl-4 pr-1.5 text-sm font-semibold text-secondary transition-colors hover:bg-secondary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-primary"
-        >
-          <span>{t.backToTop}</span>
-          <span
-            aria-hidden="true"
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary text-primary transition-transform group-hover:-translate-y-0.5 group-hover:bg-primary group-hover:text-secondary motion-reduce:transition-none motion-reduce:group-hover:translate-y-0"
-          >
-            <svg className="h-4 w-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 19V5m-6 6l6-6 6 6" />
-            </svg>
-          </span>
-        </button>
         <div className="space-y-1">
           <p>{t.copyright}</p>
           <p className="font-display text-white/40">
@@ -208,6 +241,8 @@ export const Footer: React.FC = () => {
           </p>
         </div>
       </Container>
+
+      <BackToTop label={t.backToTop} />
     </footer>
   );
 };

@@ -4,6 +4,7 @@ import React, { Suspense, useEffect, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useGLTF, OrbitControls, ContactShadows } from "@react-three/drei";
 import * as THREE from "three";
+import { shadowOverhang } from "@/components/3d/heroQuranFrame";
 
 export const MODEL_PATH = "/models/quran_3d_free.glb";
 
@@ -140,17 +141,27 @@ const QuranMesh: React.FC<QuranMeshProps> = ({ mousePosRef, spinRef, onReady }) 
   );
 };
 
-/** Backs the camera off on narrow canvases (phones) so the tilted book is never cropped. */
+/**
+ * Frames the book in the top part of the canvas (the frame) and lets the view run on into the
+ * overhang below it, at the same scale. Backs the camera off on narrow frames (phones) so the
+ * tilted book is never cropped.
+ */
 const ResponsiveCamera: React.FC = () => {
   const getState = useThree((state) => state.get);
-  const aspect = useThree((state) => state.size.width / Math.max(1, state.size.height));
+  const width = useThree((state) => state.size.width);
+  const height = useThree((state) => state.size.height);
 
   useEffect(() => {
-    const { camera } = getState();
+    const camera = getState().camera as THREE.PerspectiveCamera;
+    const frameHeight = Math.max(1, height / (1 + shadowOverhang));
+    const aspect = width / frameHeight;
+
+    camera.aspect = aspect;
+    camera.setViewOffset(width, frameHeight, 0, 0, width, height);
     camera.position.z =
       aspect >= minAspectForBaseZ ? baseCameraZ : (baseCameraZ * minAspectForBaseZ) / aspect;
     camera.updateProjectionMatrix();
-  }, [getState, aspect]);
+  }, [getState, width, height]);
 
   return null;
 };
@@ -201,7 +212,8 @@ export default function HeroQuranCanvas({ onReady }: { onReady: () => void }) {
       {...touchHandlers}
     >
       <Canvas
-        camera={{ position: [0, 0, baseCameraZ], fov: 42 }}
+        // `manual`: ResponsiveCamera sets the aspect and view offset, not react-three-fiber.
+        camera={{ position: [0, 0, baseCameraZ], fov: 42, manual: true }}
         gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}
         dpr={[1, 1.75]}
         className={finePointer ? "cursor-grab active:cursor-grabbing" : undefined}

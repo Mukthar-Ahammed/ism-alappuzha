@@ -104,6 +104,7 @@ export const NamazSkip: React.FC<NamazSkipProps & { placement: "inline" | "float
 
   return (
     <div
+      data-floating-skip={floatingVisible}
       className={cn(
         "pointer-events-none fixed inset-x-0 bottom-[max(1.25rem,env(safe-area-inset-bottom))] z-40 flex justify-center px-4 transition-all duration-300 sm:bottom-8",
         floatingVisible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"

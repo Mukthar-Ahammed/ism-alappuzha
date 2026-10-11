@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { ModelPoster } from "@/components/3d/ModelPoster";
+import { shadowOverhang } from "@/components/3d/heroQuranFrame";
 
 // three.js and the model load only once the page is idle; the poster covers the wait.
 const HeroQuranCanvas = dynamic(() => import("@/components/3d/HeroQuranCanvas"), { ssr: false });
@@ -67,11 +68,14 @@ export const HeroQuran: React.FC<{ className?: string }> = ({
   return (
     <div className={`relative mx-auto w-full max-w-[520px] ${className}`}>
       <ModelPoster
-        className={`absolute inset-0 transition-opacity duration-700 ${modelReady ? "opacity-0" : "opacity-100"}`}
+        // The still has the shadow cut off at its bottom edge; the mask fades that edge out.
+        className={`absolute inset-0 [mask-image:linear-gradient(to_bottom,black_80%,transparent)] transition-opacity duration-700 ${modelReady ? "opacity-0" : "opacity-100"}`}
       />
       {loadModel && (
+        // The canvas hangs below the frame so the shadow under the book has room.
         <div
-          className={`absolute inset-0 transition-opacity duration-700 ${modelReady ? "opacity-100" : "opacity-0"}`}
+          className={`absolute inset-x-0 top-0 transition-opacity duration-700 ${modelReady ? "opacity-100" : "opacity-0"}`}
+          style={{ height: `${(1 + shadowOverhang) * 100}%` }}
         >
           <HeroQuranCanvas onReady={() => setModelReady(true)} />
         </div>
