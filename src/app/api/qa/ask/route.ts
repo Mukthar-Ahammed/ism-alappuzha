@@ -1,48 +1,50 @@
 import { NextResponse } from "next/server";
-import { z } from "zod";
+import { checkRateLimit } from "@/lib/auth/rate-limit";
+import {
+  askQuestionSchema,
+  generateTicketId,
+  getClientIp,
+  qaRateLimitKey,
+} from "@/lib/qa/public";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { questionCategories } from "@/lib/types/qa";
-
-const askQuestionSchema = z.object({
-  name: z
-    .string()
-    .trim()
-    .max(50, "Name must be 50 characters or fewer.")
-    .optional()
-    .transform((value) => (value ? stripHtml(value) : null)),
-  category: z.enum(questionCategories),
-  question: z
-    .string()
-    .trim()
-    .min(10, "Your question must be between 10 and 500 characters long.")
-    .max(500, "Your question must be between 10 and 500 characters long.")
-    .transform(stripHtml),
-  website: z.string().optional(),
-});
 
 type AskResponse =
-  | { ok: true; success: true; message: string }
+  | {
+      ok: true;
+      success: true;
+      message: string;
+      ticketId: string;
+    }
   | { ok: false; success: false; error: string };
-
-function stripHtml(value: string): string {
-  return value.replace(/<[^>]*>?/gm, "").trim();
-}
 
 function jsonResponse(body: AskResponse, init?: ResponseInit): NextResponse<AskResponse> {
   return NextResponse.json(body, init);
 }
 
-function getClientIp(request: Request): string {
-  const forwardedFor = request.headers.get("x-forwarded-for");
+async function createUniqueTicketId(): Promise<string> {
+  const supabase = createSupabaseAdminClient();
 
-  if (forwardedFor) {
-    return forwardedFor.split(",")[0]?.trim() || "unknown";
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    const ticketId = generateTicketId();
+    const { data, error } = await supabase
+      .from("questions")
+      .select("id")
+      .eq("ticket_id", ticketId)
+      .maybeSingle();
+
+    if (error) {
+      throw new Error("ticket_lookup_failed");
+    }
+
+    if (!data) {
+      return ticketId;
+    }
   }
 
-  return request.headers.get("x-real-ip") || "unknown";
+  throw new Error("ticket_collision");
 }
 
-export async function POST(request: Request) {
+export async function POST(request: Request): Promise<NextResponse<AskResponse>> {
   let payload: unknown;
 
   try {
@@ -71,41 +73,57 @@ export async function POST(request: Request) {
     return jsonResponse({
       ok: true,
       success: true,
-      message: "Question sent. It will appear here after a scholar answers it.",
+      message: "Question sent. Save your Ticket ID to check the answer later.",
+      ticketId: generateTicketId(),
     });
   }
 
-  const supabase = createSupabaseAdminClient();
-  const rateLimitKey = `qa:ask:${getClientIp(request)}`;
-  const { data: allowed, error: rateLimitError } = await supabase.rpc(
-    "check_rate_limit",
-    {
-      key: rateLimitKey,
-      max_hits: 3,
-      window_seconds: 60 * 60,
-    }
-  );
+  const clientIp = getClientIp(request);
+  const allowed = await checkRateLimit(qaRateLimitKey("ask", clientIp), 3, 60 * 60);
 
-  if (rateLimitError || allowed !== true) {
+  if (!allowed) {
     return jsonResponse(
       {
         ok: false,
         success: false,
         error:
-          "Too many question submissions from your network. Maximum 3 questions per hour allowed. Please try again later.",
+          "Too many question submissions from your network. Please try again later.",
       },
       { status: 429 }
     );
   }
 
-  const { error } = await supabase.from("questions").insert({
-    name: parsed.data.name,
-    category: parsed.data.category,
-    question: parsed.data.question,
-    status: "pending",
-  });
+  try {
+    const supabase = createSupabaseAdminClient();
+    const ticketId = await createUniqueTicketId();
+    const { error } = await supabase.from("questions").insert({
+      ticket_id: ticketId,
+      name: parsed.data.name,
+      email: parsed.data.email,
+      category: parsed.data.category,
+      question: parsed.data.question,
+      is_private: parsed.data.isPrivate,
+      status: "pending",
+    });
 
-  if (error) {
+    if (error) {
+      return jsonResponse(
+        {
+          ok: false,
+          success: false,
+          error: "Could not send your question. Please try again later.",
+        },
+        { status: 500 }
+      );
+    }
+
+    return jsonResponse({
+      ok: true,
+      success: true,
+      message: "Question sent. Save your Ticket ID to check the answer later.",
+      ticketId,
+    });
+  } catch {
     return jsonResponse(
       {
         ok: false,
@@ -115,10 +133,4 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
-
-  return jsonResponse({
-    ok: true,
-    success: true,
-    message: "Question sent. It will appear here after a scholar answers it.",
-  });
 }

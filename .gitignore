@@ -38,7 +38,6 @@ yarn-error.log*
 .env.local
 !.env.example
 !.env.*.example
-.env.example
 
 # secrets and credentials
 *.pem
@@ -57,6 +56,9 @@ yarn-error.log*
 service-account*.json
 firebase-adminsdk*.json
 google-credentials*.json
+# The patterns above must never hide application code (e.g. CopySecretButton.tsx).
+!src/**
+!tests/**
 
 # local databases and dumps
 *.sqlite
@@ -71,8 +73,12 @@ supabase/.temp/
 supabase/.env
 supabase/.env.*
 
-# vercel
+# hosting
 .vercel
+.netlify/
+
+# local scratch output (dev-server logs etc.)
+/scratch/
 
 # typescript
 *.tsbuildinfo

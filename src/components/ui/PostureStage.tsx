@@ -2,6 +2,19 @@
 
 import React from "react";
 import { cn } from "@/lib/utils/cn";
+import { useLocale } from "@/lib/i18n/locale";
+
+const postureNamesMl: Record<string, string> = {
+  niyyah: "നിയ്യത്ത്",
+  takbeer: "തക്ബീർ",
+  qiyam: "ഖിയാം",
+  ruku: "റുകൂഅ്",
+  itidal: "ഇഅ്തിദാൽ",
+  sujood: "സുജൂദ്",
+  jalsa: "ജൽസ",
+  tashahhud: "തശഹ്ഹുദ്",
+  salam: "സലാം",
+};
 
 export interface PostureStageProps {
   postureKey: string;
@@ -14,6 +27,7 @@ export const PostureStage: React.FC<PostureStageProps> = ({
   className,
   size = "md",
 }) => {
+  const locale = useLocale();
   const sizeClasses = {
     sm: "w-12 h-12",
     md: "w-28 h-28 sm:w-36 sm:h-36",
@@ -120,7 +134,7 @@ export const PostureStage: React.FC<PostureStageProps> = ({
 
       {/* Posture Name Overlay Badge */}
       <span className="absolute bottom-1 right-2 text-[9px] font-mono text-text-muted uppercase tracking-wider">
-        {postureKey}
+        {locale === "ml" ? postureNamesMl[postureKey] ?? postureKey : postureKey}
       </span>
     </div>
   );

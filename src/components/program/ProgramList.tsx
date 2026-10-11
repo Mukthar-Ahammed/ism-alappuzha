@@ -3,6 +3,12 @@
 import React from "react";
 import type { Program } from "@/data/programs";
 import { getISTParts } from "@/lib/utils/dateUtils";
+import { defineCopy, pickText, useCopy, useLocale } from "@/lib/i18n/locale";
+
+const copy = defineCopy({
+  en: { onThisDate: (n: number) => `Programs on this date (${n})` },
+  ml: { onThisDate: (n: number) => `ഈ ദിവസത്തെ പരിപാടികൾ (${n})` },
+});
 
 interface ProgramListProps {
   programs: Program[];
@@ -15,18 +21,20 @@ export const ProgramList: React.FC<ProgramListProps> = ({
   selectedProgramId,
   onSelectProgram,
 }) => {
+  const locale = useLocale();
+  const t = useCopy(copy);
   if (programs.length <= 1) return null;
 
   return (
     <div className="flex flex-col gap-2 mb-4 pb-3 border-b border-border-subtle/40">
       <span className="text-xs font-semibold text-text-muted uppercase tracking-wider">
-        Programs on this date ({programs.length})
+        {t.onThisDate(programs.length)}
       </span>
       <div className="flex flex-col gap-1.5">
         {programs.map((prog) => {
           const isSelected = prog.id === selectedProgramId;
-          const parts = getISTParts(prog.date);
-          const cleanTitle = prog.title.replace(/^TODO:\s*/, "");
+          const parts = getISTParts(prog.date, locale);
+          const cleanTitle = pickText(locale, prog.title, prog.titleMl).replace(/^TODO:\s*/, "");
 
           return (
             <button

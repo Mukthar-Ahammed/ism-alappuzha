@@ -1,7 +1,5 @@
-export default function Loading() {
-  return (
-    <main className="min-h-screen bg-primary-tint px-6 py-10 text-sm text-text-muted">
-      Loading verification...
-    </main>
-  );
+import { BrandLoader } from "@/components/ui/BrandLoader";
+
+export default function VerifyLoading() {
+  return <BrandLoader variant="page" label="Checking your session" className="bg-primary-tint min-h-screen" />;
 }

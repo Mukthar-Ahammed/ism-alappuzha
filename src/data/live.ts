@@ -2,6 +2,7 @@ export interface LiveConfig {
   isLive: boolean; // Default false. Can be toggled in dev preview
   channelId: string;
   liveTitle: string;
+  liveTitleMl: string;
   liveYoutubeId: string;
   featuredSpeech: {
     title: string;
@@ -22,6 +23,7 @@ export const liveData: LiveConfig = {
   isLive: false, // Default: false (set to true to simulate live streaming)
   channelId: "UC_ISM_ALAPPUZHA_CHANNEL_ID",
   liveTitle: "Annual District Youth Conference — Live from Alappuzha Town Hall",
+  liveTitleMl: "വാർഷിക ജില്ലാ യുവജന സമ്മേളനം — ആലപ്പുഴ ടൗൺ ഹാളിൽ നിന്ന് തത്സമയം",
   liveYoutubeId: "dQw4w9WgXcQ", // Placeholder YouTube live video ID
   featuredSpeech: {
     title: "Grounding Youth in Divine Wisdom & Modern Inquiry",

@@ -5,6 +5,23 @@ import Image from "next/image";
 import { Issue } from "@/data/issues";
 import { cn } from "@/lib/utils/cn";
 import { usePrefersReducedMotion } from "@/lib/hooks/usePrefersReducedMotion";
+import { localizeMonthName } from "@/lib/utils/dateUtils";
+import { defineCopy, pickText, useCopy, useLocale } from "@/lib/i18n/locale";
+
+const copy = defineCopy({
+  en: {
+    brand: "ISM ALAPPUZHA",
+    journal: "JOURNAL",
+    special: "Special Edition",
+    pdf: "Issue PDF",
+  },
+  ml: {
+    brand: "ഐ.എസ്.എം ആലപ്പുഴ",
+    journal: "പ്രസിദ്ധീകരണം",
+    special: "പ്രത്യേക പതിപ്പ്",
+    pdf: "ലക്കം പി.ഡി.എഫ്",
+  },
+});
 
 export interface IssueCoverProps {
   issue: Issue;
@@ -20,6 +37,9 @@ export const IssueCover: React.FC<IssueCoverProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [tilt, setTilt] = useState({ rotateX: 0, rotateY: 0 });
   const prefersReducedMotion = usePrefersReducedMotion();
+  const locale = useLocale();
+  const title = pickText(locale, issue.title, issue.titleMl);
+  const t = useCopy(copy);
 
   // Scroll-driven 3D tilt calculation
   useEffect(() => {
@@ -70,10 +90,12 @@ export const IssueCover: React.FC<IssueCoverProps> = ({
         <div className="relative w-full h-full">
           <Image
             src={issue.coverImage}
-            alt={issue.title}
+            alt={issue.coverAlt || title}
+            placeholder={issue.coverBlurDataUrl ? "blur" : "empty"}
+            blurDataURL={issue.coverBlurDataUrl}
             fill
             sizes="(max-width: 768px) 100vw, 400px"
-            className="object-cover pl-3.5 transition-transform duration-500 group-hover:scale-105"
+            className="object-cover pl-3.5"
             loading="lazy"
           />
 
@@ -82,23 +104,23 @@ export const IssueCover: React.FC<IssueCoverProps> = ({
         <div className="relative w-full h-full bg-primary pl-7 p-6 flex flex-col justify-between text-white border border-secondary/20">
           <div className="flex items-center justify-between border-b border-secondary/30 pb-3">
             <span className="font-display text-sm font-bold text-secondary tracking-wider">
-              ISM ALAPPUZHA
+              {t.brand}
             </span>
-            <span className="text-[10px] text-white/60 uppercase">JOURNAL</span>
+            <span className="text-[10px] text-white/60 uppercase">{t.journal}</span>
           </div>
 
           <div className="my-auto">
             <h3 className="font-display text-2xl font-bold text-white leading-tight tracking-tight">
-              {issue.title}
+              {title}
             </h3>
             <p className="text-xs text-secondary font-medium mt-2">
-              {issue.month} {issue.year}
+              {localizeMonthName(issue.month, locale)} {issue.year}
             </p>
           </div>
 
           <div className="pt-3 border-t border-white/10 text-[10px] text-white/50 flex justify-between">
-            <span>Special Edition</span>
-            <span>Issue PDF</span>
+            <span>{t.special}</span>
+            <span>{t.pdf}</span>
           </div>
         </div>
       )}

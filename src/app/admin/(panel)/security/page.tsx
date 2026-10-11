@@ -2,6 +2,7 @@ import Link from "next/link";
 import { z } from "zod";
 import { removeFactorAction } from "@/app/admin/auth-actions";
 import { Badge, Button, Card, CardContent, CardHeader } from "@/components/admin/ui";
+import { ChangeOwnPasswordForm } from "@/features/team/components/ChangeOwnPasswordForm";
 import { requireAdmin } from "@/lib/auth/guard";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
@@ -17,7 +18,7 @@ export default async function SecurityPage({
 }) {
   const parsedParams = securitySearchParamsSchema.safeParse(await searchParams);
   const params = parsedParams.success ? parsedParams.data : {};
-  const admin = await requireAdmin();
+  const admin = await requireAdmin({ allowPendingPasswordChange: true });
   const adminClient = createSupabaseAdminClient();
   const factors = await adminClient.auth.admin.mfa.listFactors({
     userId: admin.user.id,
@@ -40,6 +41,14 @@ export default async function SecurityPage({
         </p>
       </div>
 
+      {admin.mustChangePassword && (
+        <p
+          role="alert"
+          className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-900"
+        >
+          You signed in with a temporary password. Choose a new password to continue.
+        </p>
+      )}
       {params.error === "last-device" && (
         <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
           At least one verified authenticator device must remain.
@@ -96,11 +105,29 @@ export default async function SecurityPage({
             ))
           )}
         </CardContent>
+        <div className="border-t border-border-subtle px-5 py-4">
+          <Link
+            href="/admin/login/setup?next=%2Fadmin%2Fsecurity"
+            className="inline-flex"
+          >
+            <Button type="button">Add another device</Button>
+          </Link>
+        </div>
       </Card>
 
-      <Link href="/admin/login/setup?next=%2Fadmin%2Fsecurity">
-        <Button type="button">Add another device</Button>
-      </Link>
+      <Card>
+        <CardHeader>
+          <h2 className="text-sm font-semibold text-primary">
+            Change password
+          </h2>
+          <p className="mt-1 text-xs text-text-muted">
+            Your current session is already verified with an authenticator code.
+          </p>
+        </CardHeader>
+        <CardContent>
+          <ChangeOwnPasswordForm />
+        </CardContent>
+      </Card>
     </div>
   );
 }

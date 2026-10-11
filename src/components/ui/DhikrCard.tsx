@@ -3,6 +3,42 @@
 import React, { useCallback, useState } from "react";
 import { AudioButton } from "./AudioButton";
 import type { DhikrItem } from "@/data/dhikr";
+import { defineCopy, hasMalayalamScript, useCopy, useLocale, type Locale } from "@/lib/i18n/locale";
+
+/** Display names for the dhikr category keys (the keys stay English: they match the database check). */
+export const dhikrCategoryLabels: Record<Locale, Record<string, string>> = {
+  en: {},
+  ml: {
+    All: "എല്ലാം",
+    Favorites: "പ്രിയപ്പെട്ടവ",
+    "Morning & Evening": "രാവിലെയും വൈകുന്നേരവും",
+    "After Salah": "നമസ്കാരശേഷം",
+    Sleep: "ഉറക്കം",
+    Travel: "യാത്ര",
+    Food: "ഭക്ഷണം",
+    Forgiveness: "പാപമോചനം",
+    Protection: "സംരക്ഷണം",
+  },
+};
+
+const copy = defineCopy({
+  en: {
+    copy: "Copy",
+    copied: "Copied",
+    copyLabel: (name: string) => `Copy ${name}`,
+    addFavorite: (name: string) => `Add ${name} to favorites`,
+    removeFavorite: (name: string) => `Remove ${name} from favorites`,
+    repeat: (n: number) => `${n}×`,
+  },
+  ml: {
+    copy: "പകർത്തുക",
+    copied: "പകർത്തി",
+    copyLabel: (name: string) => `${name} പകർത്തുക`,
+    addFavorite: (name: string) => `${name} പ്രിയപ്പെട്ടവയിൽ ചേർക്കുക`,
+    removeFavorite: (name: string) => `${name} പ്രിയപ്പെട്ടവയിൽ നിന്ന് നീക്കുക`,
+    repeat: (n: number) => `${n} തവണ`,
+  },
+});
 
 interface DhikrCardProps {
   item: DhikrItem;
@@ -15,10 +51,16 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
   isFavorite,
   onToggleFavorite,
 }) => {
+  const t = useCopy(copy);
+  const locale = useLocale();
   const [copied, setCopied] = useState(false);
+  // Dhikr text stays in the language the admin typed it in, whichever site language is chosen.
+  const transliteration = item.transliteration;
+  const transliterationIsMl = hasMalayalamScript(transliteration);
+  const source = item.source;
 
   const handleCopy = useCallback(async () => {
-    const text = [item.arabic, item.transliteration, item.malayalam]
+    const text = [item.arabic, transliteration, item.malayalam]
       .filter(Boolean)
       .join("\n\n");
 
@@ -38,13 +80,13 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
 
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  }, [item]);
+  }, [item, transliteration]);
 
   return (
     <div className="group relative flex flex-col bg-white border border-border-subtle rounded-[var(--radius-card)] p-6 shadow-[var(--shadow-soft)] transition-shadow duration-300 hover:shadow-lg">
       {/* Category tag */}
       <span className="inline-flex self-start px-3 py-1 rounded-full text-[11px] font-semibold uppercase tracking-wider bg-secondary-tint text-secondary mb-5">
-        {item.category}
+        {dhikrCategoryLabels[locale][item.category] ?? item.category}
       </span>
 
       {/* Arabic text */}
@@ -57,8 +99,15 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
       </p>
 
       {/* Transliteration */}
-      <p className="text-sm font-medium text-secondary leading-relaxed mb-2 italic">
-        {item.transliteration}
+      <p
+        className={
+          transliterationIsMl
+            ? "font-malayalam text-sm font-medium text-secondary leading-relaxed mb-2"
+            : "text-sm font-medium text-secondary leading-relaxed mb-2 italic"
+        }
+        lang={transliterationIsMl ? "ml" : undefined}
+      >
+        {transliteration}
       </p>
 
       {/* Malayalam meaning */}
@@ -71,7 +120,7 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
 
       {/* Source + Repeat */}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-text-muted/60 mb-5">
-        {item.source && <span>{item.source}</span>}
+        {source && <span>{source}</span>}
         {item.repeat && item.repeat > 1 && (
           <span className="inline-flex items-center gap-1 text-secondary font-semibold">
             <svg
@@ -90,7 +139,7 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
               <path d="M7 23l-4-4 4-4" />
               <path d="M21 13v2a4 4 0 01-4 4H3" />
             </svg>
-            {item.repeat}×
+            {t.repeat(item.repeat)}
           </span>
         )}
       </div>
@@ -103,7 +152,7 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
         {/* Copy */}
         <button
           onClick={handleCopy}
-          aria-label={copied ? "Copied" : `Copy ${item.transliteration}`}
+          aria-label={copied ? t.copied : t.copyLabel(transliteration)}
           className="flex items-center justify-center h-9 px-3 rounded-full text-xs font-medium transition-all duration-200
             bg-primary-tint text-primary hover:bg-primary hover:text-white
             focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
@@ -123,7 +172,7 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
               >
                 <path d="M20 6L9 17l-5-5" />
               </svg>
-              Copied
+              {t.copied}
             </span>
           ) : (
             <span className="flex items-center gap-1">
@@ -141,7 +190,7 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
                 <rect x="9" y="9" width="13" height="13" rx="2" />
                 <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
               </svg>
-              Copy
+              {t.copy}
             </span>
           )}
         </button>
@@ -154,8 +203,8 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
           onClick={() => onToggleFavorite(item.id)}
           aria-label={
             isFavorite
-              ? `Remove ${item.transliteration} from favorites`
-              : `Add ${item.transliteration} to favorites`
+              ? t.removeFavorite(transliteration)
+              : t.addFavorite(transliteration)
           }
           aria-pressed={isFavorite}
           className="flex items-center justify-center w-9 h-9 rounded-full transition-all duration-200

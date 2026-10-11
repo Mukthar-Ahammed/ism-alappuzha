@@ -23,6 +23,8 @@ function evaluate(options: {
   roles?: readonly AdminRole[];
   timestamp?: number;
   sessionIssuedAt?: number | null;
+  sessionId?: string | null;
+  sessionIsActive?: boolean;
 }) {
   return evaluateAdminGuard({
     user: options.email === null ? null : user(options.email),
@@ -30,6 +32,8 @@ function evaluate(options: {
     allowlistedRole: options.role === undefined ? "admin" : options.role,
     roles: options.roles,
     sessionIssuedAt: options.sessionIssuedAt,
+    sessionId: options.sessionId,
+    sessionIsActive: options.sessionIsActive,
     nowMs,
     currentAuthenticationMethods: [
       { method: "password", timestamp: options.timestamp ?? recentTimestamp },
@@ -93,5 +97,34 @@ describe("evaluateAdminGuard", () => {
 
   it("accepts a fresh aal2 allowlisted admin", () => {
     expect(evaluate({ role: "admin", roles: ["admin"] }).ok).toBe(true);
+  });
+
+  it("rejects a guard call with a revoked session id", () => {
+    expectGuardError(
+      evaluate({
+        sessionId: "7b435b8e-5b6c-48be-9b37-cf86109dc082",
+        sessionIsActive: false,
+      }),
+      "SESSION_EXPIRED"
+    );
+  });
+
+  it("rejects a guard call when the session_id claim is missing", () => {
+    expectGuardError(
+      evaluate({
+        sessionId: null,
+      }),
+      "SESSION_EXPIRED"
+    );
+  });
+
+  it("accepts a guard call with an active session", () => {
+    const result = evaluate({
+      sessionId: "7b435b8e-5b6c-48be-9b37-cf86109dc082",
+      sessionIsActive: true,
+      role: "admin",
+      roles: ["admin"],
+    });
+    expect(result.ok).toBe(true);
   });
 });

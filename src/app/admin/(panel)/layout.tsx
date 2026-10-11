@@ -8,7 +8,7 @@ export default async function AdminPanelLayout({
   children: React.ReactNode;
 }) {
   const [admin, counts] = await Promise.all([
-    requireAdmin(),
+    requireAdmin({ allowPendingPasswordChange: true }),
     getAdminDashboardCounts(),
   ]);
 

@@ -1,4 +1,5 @@
 import type { User } from "@supabase/supabase-js";
+import { sessionPolicy } from "@/lib/auth/session-policy";
 import type { AdminRole, AdminContext } from "@/lib/auth/types";
 
 export type GuardFailureCode =
@@ -6,7 +7,8 @@ export type GuardFailureCode =
   | "MFA_REQUIRED"
   | "NOT_ALLOWLISTED"
   | "WRONG_ROLE"
-  | "SESSION_EXPIRED";
+  | "SESSION_EXPIRED"
+  | "PASSWORD_CHANGE_REQUIRED";
 
 export type GuardResult =
   | { ok: true; data: AdminContext }
@@ -22,9 +24,14 @@ export type GuardInputs = {
   roles?: readonly AdminRole[];
   sessionIssuedAt?: number | null;
   nowMs?: number;
+  sessionId?: string | null;
+  sessionIsActive?: boolean;
+  mustChangePassword?: boolean;
+  allowPendingPasswordChange?: boolean;
 };
 
-const maxSessionAgeSeconds = 12 * 60 * 60;
+// Defence in depth: the database also enforces this (phase 10 session policy).
+const maxSessionAgeSeconds = sessionPolicy.maxSessionSeconds;
 
 function getLatestAuthTimestamp(methods: AuthMethodEntry[]): number | null {
   const timestamps = methods
@@ -45,16 +52,16 @@ export function evaluateAdminGuard(inputs: GuardInputs): GuardResult {
     return { ok: false, error: "NO_SESSION" };
   }
 
+  if (inputs.sessionId === null || inputs.sessionIsActive === false) {
+    return { ok: false, error: "SESSION_EXPIRED" };
+  }
+
   if (inputs.aal !== "aal2") {
     return { ok: false, error: "MFA_REQUIRED" };
   }
 
   if (!inputs.allowlistedRole) {
     return { ok: false, error: "NOT_ALLOWLISTED" };
-  }
-
-  if (inputs.roles && !inputs.roles.includes(inputs.allowlistedRole)) {
-    return { ok: false, error: "WRONG_ROLE" };
   }
 
   const latestAuthTimestamp = getLatestAuthTimestamp(
@@ -68,11 +75,24 @@ export function evaluateAdminGuard(inputs: GuardInputs): GuardResult {
     return { ok: false, error: "SESSION_EXPIRED" };
   }
 
+  const mustChangePassword = inputs.mustChangePassword === true;
+
+  // After the authenticator and session checks so a temporary password never bypasses them.
+  if (mustChangePassword && !inputs.allowPendingPasswordChange) {
+    return { ok: false, error: "PASSWORD_CHANGE_REQUIRED" };
+  }
+
+  // After the password check so a flagged reviewer is sent to Security, not sign-in.
+  if (inputs.roles && !inputs.roles.includes(inputs.allowlistedRole)) {
+    return { ok: false, error: "WRONG_ROLE" };
+  }
+
   return {
     ok: true,
     data: {
       user: inputs.user,
       role: inputs.allowlistedRole,
+      mustChangePassword,
     },
   };
 }

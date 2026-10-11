@@ -1,19 +1,35 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
+import Image from "next/image";
 import { siteData } from "@/data/site";
-import { programsData, getSortedPrograms, type Program } from "@/data/programs";
+import { getSortedPrograms, type Program } from "@/data/programs";
 import { ProgramCalendar } from "./ProgramCalendar";
 import { ProgramDetails } from "./ProgramDetails";
 import { getISTParts, isProgramUpcoming } from "@/lib/utils/dateUtils";
 import { usePrefersReducedMotion } from "@/lib/hooks/usePrefersReducedMotion";
+import { cn } from "@/lib/utils/cn";
+import { defineCopy, pickText, useCopy, useLocale } from "@/lib/i18n/locale";
 
-export const NextProgramCard: React.FC = () => {
+const copy = defineCopy({
+  en: {
+    openPoster: (title: string) => `Open the poster for ${title}`,
+    posterAlt: (title: string) => `Poster for ${title}`,
+  },
+  ml: {
+    openPoster: (title: string) => `${title} — പോസ്റ്റർ തുറക്കുക`,
+    posterAlt: (title: string) => `${title} — പോസ്റ്റർ`,
+  },
+});
+
+export const NextProgramCard: React.FC<{ programs: Program[] }> = ({ programs }) => {
+  const t = useCopy(copy);
+  const locale = useLocale();
   const prefersReducedMotion = usePrefersReducedMotion();
 
   // Get current time & sorted programs
   const [now] = useState(() => new Date());
-  const sortedPrograms = useMemo(() => getSortedPrograms(programsData), []);
+  const sortedPrograms = useMemo(() => getSortedPrograms(programs), [programs]);
 
   const todayDateKey = useMemo(() => getISTParts(now).dateKey, [now]);
 
@@ -122,9 +138,14 @@ export const NextProgramCard: React.FC = () => {
 
   return (
     <div className="w-full bg-white rounded-[22px] border border-border-subtle/50 shadow-floating overflow-hidden text-left">
-      <div className="grid grid-cols-1 min-[860px]:grid-cols-2 divide-y min-[860px]:divide-y-0 min-[860px]:divide-x divide-border-subtle/40">
+      <div
+        className={cn(
+          "grid grid-cols-1 min-[860px]:grid-cols-2 divide-y min-[860px]:divide-y-0 min-[860px]:divide-x divide-border-subtle/40",
+          selectedProgram?.poster && "lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,20rem)]"
+        )}
+      >
         {/* Left Half: Month Calendar */}
-        <div className="p-6 sm:p-8 flex flex-col justify-between bg-white">
+        <div className="p-5 sm:p-8 flex flex-col justify-between bg-white">
           <ProgramCalendar
             currentYear={currentYear}
             currentMonth={currentMonth}
@@ -138,7 +159,7 @@ export const NextProgramCard: React.FC = () => {
         </div>
 
         {/* Right Half: Program Details */}
-        <div className="p-6 sm:p-8 flex flex-col justify-between bg-white/50">
+        <div className="p-5 sm:p-8 flex flex-col justify-between bg-white/50">
           <ProgramDetails
             program={selectedProgram}
             dayPrograms={dayPrograms}
@@ -151,6 +172,27 @@ export const NextProgramCard: React.FC = () => {
             prefersReducedMotion={prefersReducedMotion}
           />
         </div>
+
+        {/* Right: full-height poster on wide screens (smaller screens show it inside the details) */}
+        {selectedProgram?.poster && (
+          <a
+            href={selectedProgram.poster.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={t.openPoster(pickText(locale, selectedProgram.title, selectedProgram.titleMl))}
+            className="relative hidden lg:block min-h-[380px] overflow-hidden bg-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-secondary"
+          >
+            <Image
+              src={selectedProgram.poster.url}
+              alt={selectedProgram.poster.alt || t.posterAlt(pickText(locale, selectedProgram.title, selectedProgram.titleMl))}
+              fill
+              sizes="320px"
+              placeholder="blur"
+              blurDataURL={selectedProgram.poster.blurDataUrl}
+              className="object-contain"
+            />
+          </a>
+        )}
       </div>
     </div>
   );

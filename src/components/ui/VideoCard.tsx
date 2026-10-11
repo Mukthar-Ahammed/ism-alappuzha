@@ -2,8 +2,49 @@
 
 import React from "react";
 import Image from "next/image";
-import { VideoItem, getThumbnailUrl } from "@/data/videos";
+import { VideoItem, VideoPlatform, getThumbnailUrl } from "@/data/videos";
 import { cn } from "@/lib/utils/cn";
+import { localizeMonthName } from "@/lib/utils/dateUtils";
+import { defineCopy, pickText, useCopy, useLocale, type Locale } from "@/lib/i18n/locale";
+
+const copy = defineCopy({
+  en: {
+    categories: {
+      Speeches: "Speeches",
+      Campaigns: "Campaigns",
+      Youth: "Youth",
+    } as Record<VideoItem["category"], string>,
+    platforms: {
+      YouTube: "YouTube",
+      Instagram: "Instagram",
+      Facebook: "Facebook",
+    } as Record<VideoPlatform, string>,
+    watch: "Watch Speech →",
+    viewPost: "View Post ↗",
+  },
+  ml: {
+    categories: {
+      Speeches: "പ്രഭാഷണങ്ങൾ",
+      Campaigns: "കാമ്പയിനുകൾ",
+      Youth: "യുവജനം",
+    },
+    platforms: {
+      YouTube: "യൂട്യൂബ്",
+      Instagram: "ഇൻസ്റ്റഗ്രാം",
+      Facebook: "ഫേസ്ബുക്ക്",
+    },
+    watch: "പ്രഭാഷണം കാണുക →",
+    viewPost: "പോസ്റ്റ് കാണുക ↗",
+  },
+});
+
+/** The server formats video dates as "Sep 2026"; Malayalam re-renders that month name. */
+function localizeVideoDate(date: string, locale: Locale): string {
+  const match = /^(\S+) (\d{4})$/.exec(date);
+  if (locale === "en" || !match) return date;
+
+  return `${match[2]} ${localizeMonthName(match[1], locale, "short")}`;
+}
 
 export interface VideoCardProps {
   video: VideoItem;
@@ -16,6 +57,10 @@ export const VideoCard: React.FC<VideoCardProps> = ({
   onPlayClick,
   className,
 }) => {
+  const locale = useLocale();
+  const t = useCopy(copy);
+  const title = pickText(locale, video.title, video.titleMl);
+  const speaker = pickText(locale, video.speaker, video.speakerMl);
   const isYouTube = video.platform === "YouTube";
   const thumbnailUrl = getThumbnailUrl(video);
 
@@ -37,9 +82,12 @@ export const VideoCard: React.FC<VideoCardProps> = ({
       <div className="relative aspect-video w-full bg-primary-tint overflow-hidden">
         <Image
           src={thumbnailUrl}
-          alt={video.title}
+          alt={title}
           width={600}
           height={338}
+          sizes="(min-width: 1024px) 380px, (min-width: 640px) 50vw, 100vw"
+          placeholder={video.thumbnailBlurDataUrl ? "blur" : "empty"}
+          blurDataURL={video.thumbnailBlurDataUrl}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           loading="lazy"
         />
@@ -50,7 +98,7 @@ export const VideoCard: React.FC<VideoCardProps> = ({
         {/* Category Pill */}
         <div className="absolute top-3 left-3 z-10">
           <span className="bg-white/90 backdrop-blur-md text-primary px-3 py-1 rounded-full text-[11px] font-semibold uppercase tracking-wider shadow-xs">
-            {video.category}
+            {t.categories[video.category] ?? video.category}
           </span>
         </div>
 
@@ -64,7 +112,7 @@ export const VideoCard: React.FC<VideoCardProps> = ({
               video.platform === "Facebook" && "bg-blue-600 text-white"
             )}
           >
-            {video.platform}
+            {t.platforms[video.platform] ?? video.platform}
           </span>
         </div>
 
@@ -118,7 +166,7 @@ export const VideoCard: React.FC<VideoCardProps> = ({
                 onClick={handleClick}
                 className="text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary rounded-xs"
               >
-                {video.title}
+                {title}
               </button>
             ) : (
               <a
@@ -127,19 +175,19 @@ export const VideoCard: React.FC<VideoCardProps> = ({
                 rel="noopener noreferrer"
                 className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary rounded-xs"
               >
-                {video.title}
+                {title}
               </a>
             )}
           </h3>
           <p className="text-xs text-text-muted mt-2 font-medium">
-            {video.speaker}
+            {speaker}
           </p>
         </div>
 
         <div className="mt-4 pt-3 border-t border-primary/10 flex items-center justify-between text-[11px] text-text-muted">
-          <span>{video.date}</span>
+          <span>{localizeVideoDate(video.date, locale)}</span>
           <span className="font-semibold text-primary group-hover:text-secondary transition-colors">
-            {isYouTube ? "Watch Speech →" : "View Post ↗"}
+            {isYouTube ? t.watch : t.viewPost}
           </span>
         </div>
       </div>

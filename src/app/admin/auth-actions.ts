@@ -214,9 +214,30 @@ export async function confirmSetupAction(
   return verifyTotpAction(_state, formData);
 }
 
+const sessionIdPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * Ends this session everywhere it matters: Supabase revokes its refresh token, the
+ * session row is deleted server-side even if that call fails (e.g. an already expired
+ * access token), and the auth cookies are cleared. Other devices stay signed in.
+ */
 export async function signOutAction(): Promise<void> {
   const supabase = await createSupabaseServerClient();
-  await supabase.auth.signOut();
+  const { data } = await supabase.auth.getClaims();
+  const sessionId = (data?.claims as { session_id?: unknown } | undefined)?.session_id;
+
+  await supabase.auth.signOut({ scope: "local" });
+
+  if (typeof sessionId === "string" && sessionIdPattern.test(sessionId)) {
+    const { error } = await createSupabaseAdminClient().rpc("admin_end_session", {
+      p_session_id: sessionId,
+    });
+
+    if (error) {
+      console.error("[auth] admin_end_session failed:", error.code);
+    }
+  }
+
   redirect("/admin/login");
 }
 

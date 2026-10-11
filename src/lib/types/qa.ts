@@ -21,8 +21,10 @@ export interface Question {
 }
 
 export interface AskQuestionPayload {
-  name?: string;
+  name?: string | null;
+  email?: string | null;
   category: QuestionCategory;
   question: string;
+  isPrivate?: boolean;
   website?: string; // Honeypot field
 }

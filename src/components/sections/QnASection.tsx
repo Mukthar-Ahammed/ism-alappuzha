@@ -1,14 +1,28 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Container } from "@/components/ui/Container";
 import { AskForm } from "@/components/ui/AskForm";
+import { CheckStatus } from "@/components/ui/CheckStatus";
 import { QaAccordion } from "@/components/ui/QaAccordion";
-import { fallbackQuestions } from "@/data/qa";
 import type { Question } from "@/lib/types/qa";
+import { defineCopy, useCopy } from "@/lib/i18n/locale";
+
+const copy = defineCopy({
+  en: {
+    title: "Ask a question",
+    subtitle: "Your question is reviewed by our scholars. Answers appear here once published.",
+  },
+  ml: {
+    title: "ചോദ്യം ചോദിക്കുക",
+    subtitle:
+      "നിങ്ങളുടെ ചോദ്യം ഞങ്ങളുടെ പണ്ഡിതന്മാർ പരിശോധിക്കും. പ്രസിദ്ധീകരിച്ചാൽ ഉത്തരങ്ങൾ ഇവിടെ കാണാം.",
+  },
+});
 
 export const QnASection: React.FC = () => {
+  const t = useCopy(copy);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -54,7 +68,7 @@ export const QnASection: React.FC = () => {
       }
 
       if (isMounted) {
-        setQuestions(fallbackQuestions);
+        setQuestions([]);
         setLoading(false);
       }
     }
@@ -70,45 +84,46 @@ export const QnASection: React.FC = () => {
     <section
       ref={sectionRef}
       id="qna"
-      className="relative w-full py-24 md:py-32 bg-primary overflow-hidden"
+      className="relative w-full py-16 sm:py-24 md:py-32 bg-primary overflow-hidden"
     >
       <Container>
         {/* Section Heading */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 24 }}
           animate={isVisible ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5 }}
-          className="mb-12 md:mb-16 max-w-3xl"
+          className="mb-8 sm:mb-12 md:mb-16 max-w-3xl"
         >
           <h2 className="font-display text-4xl sm:text-5xl md:text-6xl font-normal tracking-tight leading-[1.1] text-white">
-            Ask a question
+            {t.title}
           </h2>
-          <p className="mt-4 text-lg sm:text-xl font-body font-light leading-relaxed text-white/60">
-            Your question is reviewed by our scholars. Answers appear here once published.
+          <p className="mt-3 sm:mt-4 text-base sm:text-xl font-body font-light leading-relaxed text-white/60">
+            {t.subtitle}
           </p>
-        </motion.div>
+        </m.div>
 
         {/* 2 Column Layout (Form left, Accordion right on desktop; Stacked on mobile) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
           {/* Left Column: Ask Form */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 32 }}
             animate={isVisible ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.5, delay: 0.1 }}
             className="lg:col-span-5"
           >
             <AskForm />
-          </motion.div>
+          </m.div>
 
           {/* Right Column: Answered Questions Accordion with Scroll Stagger */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 32 }}
             animate={isVisible ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="lg:col-span-7"
+            className="lg:col-span-7 space-y-8"
           >
+            <CheckStatus />
             <QaAccordion questions={questions} loading={loading} />
-          </motion.div>
+          </m.div>
         </div>
       </Container>
     </section>

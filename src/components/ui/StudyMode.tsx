@@ -8,6 +8,56 @@ import React, {
   useState,
 } from "react";
 import type { DhikrItem } from "@/data/dhikr";
+import { defineCopy, hasMalayalamScript, useCopy } from "@/lib/i18n/locale";
+
+const copy = defineCopy({
+  en: {
+    title: "Study Mode",
+    reviewRound: "(Review round)",
+    close: "Close study mode",
+    complete: "Session Complete",
+    studied: (n: number) => `You studied ${n} dhikr`,
+    known: "Known",
+    needReview: "Need review",
+    studyAgain: "Study again",
+    exit: "Exit",
+    progress: (current: number, total: number) => `${current} of ${total}`,
+    revealHint: "Tap or press Space to reveal meaning",
+    sayTimes: (n: number) => `Say ${n} times`,
+    showFront: "Show front",
+    showBack: "Show back",
+    reveal: "Reveal meaning",
+    gotIt: "Got it ✓",
+    reviewAgain: "Review again ↻",
+    previous: "Previous card",
+    next: "Next card",
+    shuffleCards: "Shuffle cards",
+    shuffle: "Shuffle",
+  },
+  ml: {
+    title: "പഠന മോഡ്",
+    reviewRound: "(പുനരവലോകനം)",
+    close: "പഠന മോഡ് അടയ്ക്കുക",
+    complete: "പഠനം പൂർത്തിയായി",
+    studied: (n: number) => `നിങ്ങൾ ${n} ദിക്ർ പഠിച്ചു`,
+    known: "അറിയാം",
+    needReview: "വീണ്ടും പഠിക്കണം",
+    studyAgain: "വീണ്ടും പഠിക്കുക",
+    exit: "പുറത്തുകടക്കുക",
+    progress: (current: number, total: number) => `${total}-ൽ ${current}`,
+    revealHint: "അർത്ഥം കാണാൻ ടാപ്പ് ചെയ്യുക അല്ലെങ്കിൽ സ്പേസ് അമർത്തുക",
+    sayTimes: (n: number) => `${n} തവണ ചൊല്ലുക`,
+    showFront: "മുൻവശം കാണുക",
+    showBack: "പിൻവശം കാണുക",
+    reveal: "അർത്ഥം കാണുക",
+    gotIt: "മനസ്സിലായി ✓",
+    reviewAgain: "വീണ്ടും നോക്കാം ↻",
+    previous: "മുമ്പത്തെ കാർഡ്",
+    next: "അടുത്ത കാർഡ്",
+    shuffleCards: "കാർഡുകൾ ഇടകലർത്തുക",
+    shuffle: "ഇടകലർത്തുക",
+  },
+});
 
 interface StudyModeProps {
   items: DhikrItem[];
@@ -36,6 +86,7 @@ function shuffleArray<T>(arr: T[]): T[] {
 }
 
 export const StudyMode: React.FC<StudyModeProps> = ({ items, onClose }) => {
+  const t = useCopy(copy);
   const [state, setState] = useState<FlashcardState>(() => ({
     index: 0,
     flipped: false,
@@ -82,6 +133,15 @@ export const StudyMode: React.FC<StudyModeProps> = ({ items, onClose }) => {
     });
   }, []);
 
+  // The page behind the sheet stays put while studying (touch scrolls would move it otherwise).
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, []);
+
   // Keyboard handler
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -111,6 +171,8 @@ export const StudyMode: React.FC<StudyModeProps> = ({ items, onClose }) => {
   const currentQueue =
     state.phase === "review" ? state.reviewQueue : state.queue;
   const currentItem = items[currentQueue[state.index]];
+  // Dhikr text stays in the language the admin typed it in, whichever site language is chosen.
+  const pronunciationIsMl = hasMalayalamScript(currentItem?.transliteration);
   const totalInQueue = currentQueue.length;
 
   const knownCount = useMemo(() => {
@@ -262,31 +324,31 @@ export const StudyMode: React.FC<StudyModeProps> = ({ items, onClose }) => {
 
   return (
     <div
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm"
+      className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
-      aria-label="Study Mode"
+      aria-label={t.title}
     >
       <div
         ref={containerRef}
         tabIndex={-1}
         onKeyDown={handleFocusTrap}
-        className="relative w-full max-w-lg mx-4 bg-white rounded-[var(--radius-card)] shadow-2xl overflow-hidden focus:outline-none"
+        className="relative w-full max-w-lg sm:mx-4 bg-white rounded-t-[var(--radius-card)] sm:rounded-[var(--radius-card)] shadow-2xl max-h-[92dvh] sm:max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain pb-[env(safe-area-inset-bottom)] animate-in fade-in focus:outline-none"
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border-subtle">
+        <div className="sticky top-0 z-10 flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 bg-white border-b border-border-subtle">
           <h3 className="font-display text-lg text-primary font-medium">
-            Study Mode
+            {t.title}
             {state.phase === "review" && (
               <span className="ml-2 text-xs text-secondary font-body">
-                (Review round)
+                {t.reviewRound}
               </span>
             )}
           </h3>
           <button
             onClick={onClose}
-            aria-label="Close study mode"
-            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-primary-tint transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            aria-label={t.close}
+            className="w-10 h-10 -mr-2 flex items-center justify-center rounded-full hover:bg-primary-tint transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
             <svg
               width="18"
@@ -325,10 +387,10 @@ export const StudyMode: React.FC<StudyModeProps> = ({ items, onClose }) => {
               </svg>
             </div>
             <h4 className="font-display text-2xl text-primary mb-2">
-              Session Complete
+              {t.complete}
             </h4>
             <p className="text-text-muted mb-6">
-              You studied {items.length} dhikr
+              {t.studied(items.length)}
             </p>
 
             <div className="flex justify-center gap-6 mb-8">
@@ -336,14 +398,14 @@ export const StudyMode: React.FC<StudyModeProps> = ({ items, onClose }) => {
                 <div className="text-3xl font-bold text-primary">
                   {knownCount}
                 </div>
-                <div className="text-xs text-text-muted mt-1">Known</div>
+                <div className="text-xs text-text-muted mt-1">{t.known}</div>
               </div>
               <div className="w-px bg-border-subtle" />
               <div className="text-center">
                 <div className="text-3xl font-bold text-secondary">
                   {reviewCount}
                 </div>
-                <div className="text-xs text-text-muted mt-1">Need review</div>
+                <div className="text-xs text-text-muted mt-1">{t.needReview}</div>
               </div>
             </div>
 
@@ -352,13 +414,13 @@ export const StudyMode: React.FC<StudyModeProps> = ({ items, onClose }) => {
                 onClick={handleStudyAgain}
                 className="px-6 py-2.5 rounded-full bg-primary text-white text-sm font-semibold hover:bg-primary-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               >
-                Study again
+                {t.studyAgain}
               </button>
               <button
                 onClick={onClose}
                 className="px-6 py-2.5 rounded-full bg-primary-tint text-primary text-sm font-semibold hover:bg-primary/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               >
-                Exit
+                {t.exit}
               </button>
             </div>
           </div>
@@ -366,10 +428,10 @@ export const StudyMode: React.FC<StudyModeProps> = ({ items, onClose }) => {
           /* ─── Flashcard screen ─── */
           <>
             {/* Progress bar */}
-            <div className="px-6 pt-4">
+            <div className="px-4 sm:px-6 pt-4">
               <div className="flex items-center justify-between text-xs text-text-muted mb-2">
                 <span>
-                  {state.index + 1} of {totalInQueue}
+                  {t.progress(state.index + 1, totalInQueue)}
                 </span>
                 <span>{Math.round(progressPercent)}%</span>
               </div>
@@ -383,7 +445,7 @@ export const StudyMode: React.FC<StudyModeProps> = ({ items, onClose }) => {
 
             {/* Flashcard */}
             <div
-              className="px-6 py-8"
+              className="px-4 py-6 sm:px-6 sm:py-8"
               aria-live="polite"
               aria-atomic="true"
             >
@@ -421,11 +483,17 @@ export const StudyMode: React.FC<StudyModeProps> = ({ items, onClose }) => {
                       >
                         {currentItem?.arabic}
                       </p>
-                      <p className="text-base text-secondary italic font-medium">
-                        {currentItem?.transliteration}
-                      </p>
+                      {pronunciationIsMl ? (
+                        <p className="font-malayalam text-base text-secondary font-medium" lang="ml">
+                          {currentItem?.transliteration}
+                        </p>
+                      ) : (
+                        <p className="text-base text-secondary italic font-medium">
+                          {currentItem?.transliteration}
+                        </p>
+                      )}
                       <p className="text-xs text-text-muted mt-4">
-                        Tap or press Space to reveal meaning
+                        {t.revealHint}
                       </p>
                     </div>
                   </div>
@@ -457,7 +525,7 @@ export const StudyMode: React.FC<StudyModeProps> = ({ items, onClose }) => {
                       </p>
                       {currentItem?.repeat && currentItem.repeat > 1 && (
                         <p className="text-sm text-secondary font-semibold mt-2">
-                          Say {currentItem.repeat} times
+                          {t.sayTimes(currentItem.repeat)}
                         </p>
                       )}
                     </div>
@@ -472,30 +540,30 @@ export const StudyMode: React.FC<StudyModeProps> = ({ items, onClose }) => {
                 }
                 className="mt-4 w-full py-2.5 rounded-full bg-primary-tint text-primary text-sm font-medium hover:bg-primary/10 transition-colors
                   focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:hidden"
-                aria-label={state.flipped ? "Show front" : "Show back"}
+                aria-label={state.flipped ? t.showFront : t.showBack}
               >
-                {state.flipped ? "Show front" : "Reveal meaning"}
+                {state.flipped ? t.showFront : t.reveal}
               </button>
             </div>
 
             {/* Controls */}
-            <div className="px-6 pb-6 space-y-3">
+            <div className="px-4 pb-5 sm:px-6 sm:pb-6 space-y-3">
               {/* Got it / Review again */}
               {state.flipped && (
                 <div className="flex gap-3">
                   <button
                     onClick={handleGotIt}
-                    className="flex-1 py-2.5 rounded-full bg-primary text-white text-sm font-semibold hover:bg-primary-hover transition-colors
+                    className="flex-1 min-h-11 py-2.5 rounded-full bg-primary text-white text-sm font-semibold hover:bg-primary-hover transition-colors
                       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                   >
-                    Got it ✓
+                    {t.gotIt}
                   </button>
                   <button
                     onClick={handleReviewAgain}
-                    className="flex-1 py-2.5 rounded-full bg-secondary-tint text-secondary text-sm font-semibold hover:bg-secondary/20 transition-colors
+                    className="flex-1 min-h-11 py-2.5 rounded-full bg-secondary-tint text-secondary text-sm font-semibold hover:bg-secondary/20 transition-colors
                       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
                   >
-                    Review again ↻
+                    {t.reviewAgain}
                   </button>
                 </div>
               )}
@@ -505,7 +573,7 @@ export const StudyMode: React.FC<StudyModeProps> = ({ items, onClose }) => {
                 <button
                   onClick={handlePrev}
                   disabled={state.index === 0}
-                  aria-label="Previous card"
+                  aria-label={t.previous}
                   className="w-10 h-10 flex items-center justify-center rounded-full bg-primary-tint text-primary hover:bg-primary/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed
                     focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                 >
@@ -526,7 +594,7 @@ export const StudyMode: React.FC<StudyModeProps> = ({ items, onClose }) => {
 
                 <button
                   onClick={handleShuffle}
-                  aria-label="Shuffle cards"
+                  aria-label={t.shuffleCards}
                   className="px-4 py-2 rounded-full bg-primary-tint text-primary text-xs font-medium hover:bg-primary/10 transition-colors
                     focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                 >
@@ -548,14 +616,14 @@ export const StudyMode: React.FC<StudyModeProps> = ({ items, onClose }) => {
                       <line x1="15" y1="15" x2="21" y2="21" />
                       <line x1="4" y1="4" x2="9" y2="9" />
                     </svg>
-                    Shuffle
+                    {t.shuffle}
                   </span>
                 </button>
 
                 <button
                   onClick={handleNext}
                   disabled={state.index >= totalInQueue - 1}
-                  aria-label="Next card"
+                  aria-label={t.next}
                   className="w-10 h-10 flex items-center justify-center rounded-full bg-primary-tint text-primary hover:bg-primary/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed
                     focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                 >

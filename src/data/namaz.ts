@@ -8,15 +8,27 @@ export interface PrayerStep {
   malayalam: string;
   dos: string[];
   donts: string[];
-  postureSvgKey: string;
+  /** Older Malayalam versions from the admin. Not shown: the guide displays the text as typed. */
+  nameMl?: string;
+  whatToDoMl?: string;
+  transliterationMl?: string;
+  dosMl?: string[];
+  dontsMl?: string[];
+  /** Only used by the bundled steps; admin-managed steps do not have one. */
+  postureSvgKey?: string;
   isRepeatNode?: boolean;
 }
 
-export interface RakahInfo {
+interface RakahText {
   name: string;
-  rakahs: number;
   description: string;
   details: string;
+}
+
+export interface RakahInfo extends RakahText {
+  rakahs: number;
+  /** The same text in Malayalam, for the Malayalam site language. */
+  ml: RakahText;
 }
 
 export const rakahData: RakahInfo[] = [
@@ -25,35 +37,63 @@ export const rakahData: RakahInfo[] = [
     rakahs: 2,
     description: "2 Rakahs (Dawn Prayer)",
     details: "Recite aloud in both rakahs. Final Tashahhud and Salam fall after the 2nd Rakah.",
+    ml: {
+      name: "ഫജ്ർ",
+      description: "2 റക്അത്ത് (പ്രഭാത നമസ്കാരം)",
+      details: "രണ്ട് റക്അത്തിലും ഉറക്കെ ഓതുക. അവസാന തശഹ്ഹുദും സലാമും രണ്ടാം റക്അത്തിന് ശേഷം.",
+    },
   },
   {
     name: "Zuhr",
     rakahs: 4,
     description: "4 Rakahs (Noon Prayer)",
     details: "Recite silently in all 4 rakahs. First Tashahhud after 2nd Rakah; final Tashahhud after 4th Rakah.",
+    ml: {
+      name: "ളുഹ്ർ",
+      description: "4 റക്അത്ത് (ഉച്ച നമസ്കാരം)",
+      details: "നാല് റക്അത്തിലും പതുക്കെ ഓതുക. ഒന്നാം തശഹ്ഹുദ് രണ്ടാം റക്അത്തിന് ശേഷം; അവസാന തശഹ്ഹുദ് നാലാം റക്അത്തിന് ശേഷം.",
+    },
   },
   {
     name: "Asr",
     rakahs: 4,
     description: "4 Rakahs (Afternoon Prayer)",
     details: "Recite silently in all 4 rakahs. First Tashahhud after 2nd Rakah; final Tashahhud after 4th Rakah.",
+    ml: {
+      name: "അസ്ർ",
+      description: "4 റക്അത്ത് (വൈകുന്നേര നമസ്കാരം)",
+      details: "നാല് റക്അത്തിലും പതുക്കെ ഓതുക. ഒന്നാം തശഹ്ഹുദ് രണ്ടാം റക്അത്തിന് ശേഷം; അവസാന തശഹ്ഹുദ് നാലാം റക്അത്തിന് ശേഷം.",
+    },
   },
   {
     name: "Maghrib",
     rakahs: 3,
     description: "3 Rakahs (Sunset Prayer)",
     details: "Recite aloud in first 2 rakahs, silently in 3rd. First Tashahhud after 2nd Rakah; final Tashahhud after 3rd Rakah.",
+    ml: {
+      name: "മഗ്‌രിബ്",
+      description: "3 റക്അത്ത് (സന്ധ്യാ നമസ്കാരം)",
+      details: "ആദ്യ രണ്ട് റക്അത്തിൽ ഉറക്കെയും മൂന്നാമത്തേതിൽ പതുക്കെയും ഓതുക. ഒന്നാം തശഹ്ഹുദ് രണ്ടാം റക്അത്തിന് ശേഷം; അവസാന തശഹ്ഹുദ് മൂന്നാം റക്അത്തിന് ശേഷം.",
+    },
   },
   {
     name: "Isha",
     rakahs: 4,
     description: "4 Rakahs (Night Prayer)",
     details: "Recite aloud in first 2 rakahs, silently in last 2. First Tashahhud after 2nd Rakah; final Tashahhud after 4th Rakah.",
+    ml: {
+      name: "ഇശാ",
+      description: "4 റക്അത്ത് (രാത്രി നമസ്കാരം)",
+      details: "ആദ്യ രണ്ട് റക്അത്തിൽ ഉറക്കെയും അവസാന രണ്ടിൽ പതുക്കെയും ഓതുക. ഒന്നാം തശഹ്ഹുദ് രണ്ടാം റക്അത്തിന് ശേഷം; അവസാന തശഹ്ഹുദ് നാലാം റക്അത്തിന് ശേഷം.",
+    },
   },
 ];
 
 export const scholarNote =
   "TODO: Content reviewed by [Scholar Name] — Do not publish live until a scholar has checked the Arabic text, Malayalam translation, and step order.";
+
+export const scholarNoteMl =
+  "ശ്രദ്ധിക്കുക: [പണ്ഡിതന്റെ പേര്] പരിശോധിച്ചത് — അറബി പാഠം, മലയാള പരിഭാഷ, ഘട്ടങ്ങളുടെ ക്രമം എന്നിവ ഒരു പണ്ഡിതൻ പരിശോധിക്കുന്നതുവരെ പ്രസിദ്ധീകരിക്കരുത്.";
 
 export const namazSteps: PrayerStep[] = [
   {

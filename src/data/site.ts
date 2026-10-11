@@ -31,9 +31,9 @@ export const siteData: SiteConfig = {
   state: "Kerala",
   logo: "/images/logo/ism-logo.png",
   contact: {
-    address: "TODO: ISM District Center, Near Zilla Court Bridge, Alappuzha, Kerala 688001",
-    phone: "TODO: +91 98470 00000",
-    email: "TODO: info@ismalappuzha.org",
+    address: "ISM District Center, Near Zilla Court Bridge, Alappuzha, Kerala 688001",
+    phone: "+91 98470 00000",
+    email: "info@ismalappuzha.org",
   },
   socials: {
     youtube: "https://youtube.com/@ismalappuzha",
@@ -42,12 +42,12 @@ export const siteData: SiteConfig = {
     whatsapp: "https://whatsapp.com/channel/ismalappuzha",
   },
   navLinks: [
-    { label: "Videos", href: "#videos" },
-    { label: "Issue", href: "#issue" },
-    { label: "Namaz", href: "#namaz" },
-    { label: "Dhikr & Dua", href: "#dhikr" },
-    { label: "Q&A", href: "#qa" },
-    { label: "Leaders", href: "#leaders" },
+    { label: "Videos", href: "/#videos" },
+    { label: "Issue", href: "/#issue" },
+    { label: "Namaz", href: "/#namaz" },
+    { label: "Dhikr & Dua", href: "/#dhikr" },
+    { label: "Q&A", href: "/#qna" },
+    { label: "Leaders", href: "/#leaders" },
   ],
   weekStartsOn: "Sunday",
 };

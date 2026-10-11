@@ -1,6 +1,18 @@
 "use client";
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { defineCopy, useCopy } from "@/lib/i18n/locale";
+
+const copy = defineCopy({
+  en: {
+    play: (label: string) => `Play ${label}`,
+    stop: (label: string) => `Stop ${label}`,
+  },
+  ml: {
+    play: (label: string) => `${label} കേൾക്കുക`,
+    stop: (label: string) => `${label} നിർത്തുക`,
+  },
+});
 
 // Singleton: only one audio can play at a time across all buttons
 let globalAudio: HTMLAudioElement | null = null;
@@ -15,6 +27,7 @@ export const AudioButton: React.FC<AudioButtonProps> = ({
   audioUrl,
   label,
 }) => {
+  const t = useCopy(copy);
   const [playing, setPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -81,7 +94,7 @@ export const AudioButton: React.FC<AudioButtonProps> = ({
   return (
     <button
       onClick={handleToggle}
-      aria-label={playing ? `Stop ${label}` : `Play ${label}`}
+      aria-label={playing ? t.stop(label) : t.play(label)}
       className="flex items-center justify-center w-9 h-9 rounded-full transition-all duration-200
         bg-secondary-tint text-secondary hover:bg-secondary hover:text-white
         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"

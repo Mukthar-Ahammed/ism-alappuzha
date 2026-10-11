@@ -13,38 +13,51 @@ type NavigationItem = {
   label: string;
   roles: readonly AdminRole[];
   badge?: number;
+  /** Extra path prefixes that mark this item active. */
+  matches?: readonly string[];
 };
 
 export function AdminNavigation({
   role,
   pendingCount,
+  mustChangePassword,
   children,
 }: {
   role: AdminRole;
   pendingCount: number;
+  mustChangePassword: boolean;
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const items = [
+  const items: NavigationItem[] = [
     { href: "/admin", label: "Questions", roles: ["admin", "reviewer"], badge: pendingCount },
     { href: "/admin/issues", label: "Issues", roles: ["admin"] },
-    { href: "/admin/live", label: "Live", roles: ["admin"] },
-    { href: "/admin/programs", label: "Programs", roles: ["admin"] },
+    {
+      href: "/admin/programs",
+      label: "Programs & Live",
+      roles: ["admin"],
+      matches: ["/admin/programs", "/admin/live", "/admin/videos"],
+    },
+    { href: "/admin/namaz", label: "Namaz guide", roles: ["admin", "reviewer"] },
     { href: "/admin/dhikr", label: "Dhikr and Dua", roles: ["admin", "reviewer"] },
+    { href: "/admin/leaders", label: "Leaders", roles: ["admin"] },
     { href: "/admin/team", label: "Team", roles: ["admin"] },
     { href: "/admin/security", label: "Security", roles: ["admin", "reviewer"] },
-  ] satisfies NavigationItem[];
-  const visibleItems = items.filter((item) => item.roles.includes(role));
+  ];
+  // Until the temporary password is replaced, every other page redirects to Security anyway.
+  const visibleItems = mustChangePassword
+    ? []
+    : items.filter((item) => item.roles.includes(role));
 
   const sidebar = (
     <nav aria-label="Admin navigation" className="space-y-1">
       {visibleItems.map((item) => {
         const active =
           item.href === "/admin"
-            ? pathname === "/admin"
-            : pathname.startsWith(item.href);
+            ? pathname === "/admin" || pathname.startsWith("/admin/questions")
+            : (item.matches ?? [item.href]).some((prefix) => pathname.startsWith(prefix));
 
         return (
           <Link
@@ -100,10 +113,17 @@ export function AdminNavigation({
               priority
               className="h-10 w-auto object-contain"
             />
-            <span className="text-lg font-bold text-primary">Admin</span>
           </div>
 
-          <div className="relative">
+          <div className="relative flex items-center gap-2">
+            <form action={signOutAction}>
+              <button
+                type="submit"
+                className="rounded-full border border-border-subtle px-4 py-2 text-sm font-semibold text-primary transition hover:bg-primary-tint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
+              >
+                Sign out
+              </button>
+            </form>
             <button
               type="button"
               onClick={() => setMenuOpen((value) => !value)}
@@ -126,15 +146,6 @@ export function AdminNavigation({
                 >
                   Security
                 </Link>
-                <form action={signOutAction}>
-                  <button
-                    role="menuitem"
-                    type="submit"
-                    className="w-full rounded-lg px-3 py-2 text-left text-sm font-semibold text-text-muted hover:bg-primary-tint hover:text-primary"
-                  >
-                    Sign out
-                  </button>
-                </form>
               </div>
             )}
           </div>

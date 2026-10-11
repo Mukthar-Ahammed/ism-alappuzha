@@ -1,7 +1,5 @@
-export default function Loading() {
-  return (
-    <main className="min-h-screen bg-bg px-6 py-10 text-sm text-text-muted">
-      Loading admin...
-    </main>
-  );
+import { BrandLoader } from "@/components/ui/BrandLoader";
+
+export default function AdminLoading() {
+  return <BrandLoader variant="page" label="Opening the admin" className="min-h-screen" />;
 }

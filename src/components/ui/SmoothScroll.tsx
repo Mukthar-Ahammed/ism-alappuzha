@@ -1,45 +1,38 @@
 "use client";
 
 import React, { useEffect } from "react";
-import Lenis from "lenis";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import type Lenis from "lenis";
 
 export const SmoothScroll: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   useEffect(() => {
-    // Disable smooth scroll if reduced motion is requested
+    // Smooth wheel scrolling only: phones and tablets keep native touch scrolling,
+    // and people who ask for reduced motion get the browser default.
     if (
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+      !window.matchMedia("(hover: hover) and (pointer: fine)").matches
     ) {
       return;
     }
 
-    gsap.registerPlugin(ScrollTrigger);
+    let lenis: Lenis | null = null;
+    let cancelled = false;
 
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+    // Loaded after the page is interactive so it never delays the first render.
+    void import("lenis").then(({ default: LenisScroll }) => {
+      if (cancelled) return;
+
+      lenis = new LenisScroll({
+        duration: 1.2,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        autoRaf: true,
+      });
     });
 
-    const updateScrollTrigger = () => {
-      ScrollTrigger.update();
-    };
-
-    lenis.on("scroll", updateScrollTrigger);
-
-    const tickerCb = (time: number) => {
-      lenis.raf(time * 1000);
-    };
-
-    gsap.ticker.add(tickerCb);
-    gsap.ticker.lagSmoothing(0);
-
     return () => {
-      lenis.destroy();
-      gsap.ticker.remove(tickerCb);
+      cancelled = true;
+      lenis?.destroy();
     };
   }, []);
 

@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export function AuthBrand() {
   return (
-    <div className="mb-6 flex items-center justify-between gap-4">
+    <div className="mb-6 flex justify-end">
       <Image
         src="/images/logo/ism-logo.png"
         alt="ISM Alappuzha"
@@ -11,7 +11,6 @@ export function AuthBrand() {
         priority
         className="h-12 w-auto object-contain"
       />
-      <span className="text-lg font-bold text-primary">Admin</span>
     </div>
   );
 }

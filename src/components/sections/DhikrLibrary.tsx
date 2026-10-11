@@ -1,5 +1,7 @@
 "use client";
 
+import dynamic from "next/dynamic";
+import { ModalLoader } from "@/components/ui/BrandLoader";
 import React, {
   useCallback,
   useEffect,
@@ -9,17 +11,59 @@ import React, {
   useSyncExternalStore,
 } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Container } from "@/components/ui/Container";
 import { Chips } from "@/components/ui/Chips";
-import { DhikrCard } from "@/components/ui/DhikrCard";
-import { StudyMode } from "@/components/ui/StudyMode";
+import { DhikrCard, dhikrCategoryLabels } from "@/components/ui/DhikrCard";
 import {
-  dhikrData,
   dhikrCategories,
-  dhikrScholarNote,
   type DhikrCategory,
+  type DhikrItem,
 } from "@/data/dhikr";
+import { defineCopy, useCopy, useLocale } from "@/lib/i18n/locale";
+
+const copy = defineCopy({
+  en: {
+    opening: "Opening study mode",
+    back: "Back to Home",
+    title: "Dhikr & dua library",
+    intro: "Search, listen and study daily remembrances.",
+    searchPlaceholder: "Search Arabic, transliteration, category…",
+    searchLabel: "Search dhikr",
+    clearSearch: "Clear search",
+    categoryFilter: "Category filter",
+    openStudy: "Open study mode",
+    studyMode: "Study mode",
+    empty: "Dhikr and dua will be published here soon.",
+    noResults: "No results",
+    noResultsHint: "Try another word or clear the filter.",
+    showAll: (n: number) => `Show all dhikr & dua (${n})`,
+  },
+  ml: {
+    opening: "പഠന മോഡ് തുറക്കുന്നു",
+    back: "ഹോമിലേക്ക് മടങ്ങുക",
+    title: "ദിക്ർ & ദുആ ശേഖരം",
+    intro: "ദൈനംദിന ദിക്റുകൾ തിരയുക, കേൾക്കുക, പഠിക്കുക.",
+    searchPlaceholder: "അറബി, ഉച്ചാരണം, വിഭാഗം എന്നിവയിൽ തിരയുക…",
+    searchLabel: "ദിക്ർ തിരയുക",
+    clearSearch: "തിരയൽ മായ്ക്കുക",
+    categoryFilter: "വിഭാഗം തിരഞ്ഞെടുക്കുക",
+    openStudy: "പഠന മോഡ് തുറക്കുക",
+    studyMode: "പഠന മോഡ്",
+    empty: "ദിക്റുകളും ദുആകളും ഉടൻ ഇവിടെ പ്രസിദ്ധീകരിക്കും.",
+    noResults: "ഫലങ്ങളൊന്നുമില്ല",
+    noResultsHint: "മറ്റൊരു വാക്ക് ശ്രമിക്കുക അല്ലെങ്കിൽ ഫിൽട്ടർ മായ്ക്കുക.",
+    showAll: (n: number) => `എല്ലാ ദിക്റും ദുആയും കാണുക (${n})`,
+  },
+});
+
+const StudyModeLoader: React.FC = () => <ModalLoader label={useCopy(copy).opening} />;
+
+// Loaded when first opened, not with the page.
+const StudyMode = dynamic(() => import("@/components/ui/StudyMode").then((mod) => mod.StudyMode), {
+  ssr: false,
+  loading: () => <StudyModeLoader />,
+});
 
 const emptySubscribe = () => () => {};
 const getSnapshot = () => true;
@@ -50,12 +94,17 @@ function saveFavorites(favs: Set<string>): void {
 }
 
 interface DhikrLibraryProps {
+  items: DhikrItem[];
   isHomePage?: boolean;
 }
 
 export const DhikrLibrary: React.FC<DhikrLibraryProps> = ({
+  items: allItems,
   isHomePage = false,
 }) => {
+  const t = useCopy(copy);
+  const locale = useLocale();
+
   // ── State ──
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] =
@@ -89,7 +138,7 @@ export const DhikrLibrary: React.FC<DhikrLibraryProps> = ({
 
   // ── Filtering ──
   const filteredItems = useMemo(() => {
-    let items = dhikrData;
+    let items = allItems;
 
     // Category filter
     if (activeCategory === ("Favorites" as string)) {
@@ -103,16 +152,19 @@ export const DhikrLibrary: React.FC<DhikrLibraryProps> = ({
       const q = search.trim().toLowerCase();
       items = items.filter(
         (i) =>
-          i.arabic.includes(q) ||
-          i.transliteration.toLowerCase().includes(q) ||
-          i.malayalam.toLowerCase().includes(q) ||
-          i.category.toLowerCase().includes(q) ||
-          i.source.toLowerCase().includes(q)
+          [
+            i.arabic,
+            i.transliteration,
+            i.malayalam,
+            i.category,
+            dhikrCategoryLabels.ml[i.category],
+            i.source,
+          ].some((field) => field?.toLowerCase().includes(q))
       );
     }
 
     return items;
-  }, [search, activeCategory, favorites]);
+  }, [allItems, search, activeCategory, favorites]);
 
   // ── Limit items on homepage (show max 6: 2 rows of 3 columns) ──
   const displayedItems = isHomePage ? filteredItems.slice(0, 6) : filteredItems;
@@ -150,7 +202,7 @@ export const DhikrLibrary: React.FC<DhikrLibraryProps> = ({
       <section
         ref={sectionRef}
         id="dhikr"
-        className="relative w-full py-24 md:py-32 bg-bg overflow-hidden"
+        className={`relative w-full bg-bg overflow-hidden ${isHomePage ? "py-16 sm:py-24 md:py-32" : "pt-4 pb-16 sm:pt-10 sm:pb-24 md:pb-32"}`}
       >
         <Container>
           {/* Back button on dedicated page */}
@@ -158,7 +210,7 @@ export const DhikrLibrary: React.FC<DhikrLibraryProps> = ({
             <div className="mb-6">
               <Link
                 href="/#dhikr"
-                className="inline-flex items-center gap-2 text-sm font-medium text-text-muted hover:text-primary transition-colors group"
+                className="-ml-1 inline-flex min-h-10 items-center gap-2 rounded-full px-1 text-sm font-medium text-text-muted hover:text-primary transition-colors group"
               >
                 <svg
                   width="16"
@@ -175,28 +227,28 @@ export const DhikrLibrary: React.FC<DhikrLibraryProps> = ({
                   <line x1="19" y1="12" x2="5" y2="12" />
                   <polyline points="12 19 5 12 12 5" />
                 </svg>
-                Back to Home
+                {t.back}
               </Link>
             </div>
           )}
 
           {/* ── Heading ── */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 24 }}
             animate={isVisible ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.5 }}
-            className="mb-12 md:mb-16"
+            className="mb-8 sm:mb-12 md:mb-16"
           >
             <h2 className="font-display text-4xl sm:text-5xl md:text-6xl font-normal tracking-tight leading-[1.1] text-primary">
-              Dhikr &amp; dua library
+              {t.title}
             </h2>
-            <p className="mt-4 text-lg sm:text-xl font-body font-light leading-relaxed text-text-muted">
-              Search, listen and study daily remembrances.
+            <p className="mt-3 sm:mt-4 text-base sm:text-xl font-body font-light leading-relaxed text-text-muted">
+              {t.intro}
             </p>
-          </motion.div>
+          </m.div>
 
           {/* ── Toolbar ── */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 16 }}
             animate={isVisible ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.45, delay: 0.1 }}
@@ -224,16 +276,16 @@ export const DhikrLibrary: React.FC<DhikrLibraryProps> = ({
                 type="search"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search dhikr by Arabic, transliteration, or category…"
-                aria-label="Search dhikr"
-                className="w-full pl-11 pr-4 py-3 rounded-full border border-border-subtle bg-white text-sm text-primary placeholder:text-text-muted/50 font-body
+                placeholder={t.searchPlaceholder}
+                aria-label={t.searchLabel}
+                className="w-full pl-11 pr-11 py-3 rounded-full border border-border-subtle bg-white text-sm text-primary placeholder:text-text-muted/50 font-body
                   focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent transition-all duration-200"
               />
               {search && (
                 <button
                   onClick={() => setSearch("")}
-                  aria-label="Clear search"
-                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-text-muted hover:text-primary transition-colors"
+                  aria-label={t.clearSearch}
+                  className="absolute inset-y-0 right-0 w-11 flex items-center justify-center text-text-muted hover:text-primary transition-colors"
                 >
                   <svg
                     width="16"
@@ -254,20 +306,22 @@ export const DhikrLibrary: React.FC<DhikrLibraryProps> = ({
             </div>
 
             {/* Category chips + Study mode */}
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-col items-start gap-3 sm:flex-row sm:flex-wrap sm:items-center">
               <Chips
                 categories={allCategories}
                 activeCategory={activeCategory}
                 onChange={(cat) =>
                   setActiveCategory(cat as DhikrCategory)
                 }
-                className="flex-1 min-w-0"
+                getLabel={(cat) => dhikrCategoryLabels[locale][cat] ?? cat}
+                label={t.categoryFilter}
+                className="-mx-4 w-[calc(100%+2rem)] min-w-0 px-4 sm:mx-0 sm:w-auto sm:flex-1 sm:px-0"
               />
               <button
                 onClick={() => setShowStudyMode(true)}
                 disabled={filteredItems.length === 0}
-                aria-label="Open study mode"
-                className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-xs font-semibold whitespace-nowrap
+                aria-label={t.openStudy}
+                className="inline-flex min-h-10 sm:min-h-0 items-center gap-2 px-5 py-2 rounded-full text-[13px] sm:text-xs font-semibold whitespace-nowrap
                   bg-secondary text-white hover:bg-secondary-hover transition-all duration-200
                   disabled:opacity-40 disabled:cursor-not-allowed
                   focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
@@ -287,16 +341,20 @@ export const DhikrLibrary: React.FC<DhikrLibraryProps> = ({
                   <line x1="8" y1="21" x2="16" y2="21" />
                   <line x1="12" y1="17" x2="12" y2="21" />
                 </svg>
-                Study mode
+                {t.studyMode}
               </button>
             </div>
-          </motion.div>
+          </m.div>
 
           {/* ── Results grid ── */}
-          {displayedItems.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {allItems.length === 0 ? (
+            <p className="bg-white rounded-[22px] border border-border-subtle px-6 py-10 text-center text-sm text-text-muted">
+              {t.empty}
+            </p>
+          ) : displayedItems.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {displayedItems.map((item, idx) => (
-                <motion.div
+                <m.div
                   key={item.id}
                   initial={{ opacity: 0, y: 32 }}
                   animate={isVisible ? { opacity: 1, y: 0 } : {}}
@@ -310,12 +368,12 @@ export const DhikrLibrary: React.FC<DhikrLibraryProps> = ({
                     isFavorite={hasMounted && favorites.has(item.id)}
                     onToggleFavorite={toggleFavorite}
                   />
-                </motion.div>
+                </m.div>
               ))}
             </div>
           ) : (
             /* ── Empty state ── */
-            <motion.div
+            <m.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="flex flex-col items-center justify-center py-20 text-center"
@@ -338,34 +396,34 @@ export const DhikrLibrary: React.FC<DhikrLibraryProps> = ({
                 </svg>
               </div>
               <p className="text-lg font-medium text-primary mb-1">
-                No results
+                {t.noResults}
               </p>
               <p className="text-sm text-text-muted mb-6">
-                Try another word or clear the filter.
+                {t.noResultsHint}
               </p>
               <button
                 onClick={clearSearch}
                 className="px-6 py-2.5 rounded-full bg-primary text-white text-sm font-semibold hover:bg-primary-hover transition-colors
                   focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               >
-                Clear search
+                {t.clearSearch}
               </button>
-            </motion.div>
+            </m.div>
           )}
 
           {/* ── Show All Button (Home Page only) ── */}
-          {isHomePage && (
-            <motion.div
+          {isHomePage && allItems.length > 0 && (
+            <m.div
               initial={{ opacity: 0, y: 16 }}
               animate={isVisible ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.45, delay: 0.4 }}
-              className="mt-12 flex justify-center"
+              className="mt-8 sm:mt-12 flex justify-center"
             >
               <Link
                 href="/dhikr"
-                className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-full bg-primary text-white text-sm font-semibold hover:bg-primary-hover shadow-soft transition-all duration-300 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
+                className="inline-flex w-full sm:w-auto justify-center min-h-12 items-center gap-2.5 px-6 sm:px-8 py-3.5 rounded-full bg-primary text-white text-sm font-semibold hover:bg-primary-hover shadow-soft transition-all duration-300 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
               >
-                <span>Show all dhikr &amp; dua ({dhikrData.length})</span>
+                <span>{t.showAll(allItems.length)}</span>
                 <svg
                   width="16"
                   height="16"
@@ -381,15 +439,8 @@ export const DhikrLibrary: React.FC<DhikrLibraryProps> = ({
                   <polyline points="12 5 19 12 12 19" />
                 </svg>
               </Link>
-            </motion.div>
+            </m.div>
           )}
-
-          {/* ── Scholar note ── */}
-          <div className="mt-16 pt-8 border-t border-border-subtle">
-            <p className="text-xs text-text-muted/60 italic leading-relaxed max-w-2xl">
-              ⚠️ {dhikrScholarNote}
-            </p>
-          </div>
         </Container>
       </section>
 

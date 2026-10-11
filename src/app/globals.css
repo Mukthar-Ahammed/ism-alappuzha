@@ -47,6 +47,8 @@
 
   --border-radius-card: var(--radius-card);
 
+  --shadow-floating: 0 24px 48px -16px rgba(16, 36, 30, 0.18), 0 8px 16px -8px rgba(16, 36, 30, 0.08);
+
   --max-width-site: 1280px;
 }
 
@@ -67,6 +69,65 @@ body {
   min-height: 100vh;
   background-color: var(--bg);
   color: var(--text-main);
+}
+
+/* Anchor jumps land below the fixed navbar instead of under it. */
+section[id] {
+  scroll-margin-top: 4.5rem;
+}
+
+/* Taps feel native: no grey flash, no double-tap zoom delay on controls. */
+a,
+button,
+[role="button"],
+label,
+summary {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* iOS zooms into any field under 16px when it is focused; keep phone fields at 16px. */
+@media (max-width: 639px) {
+  input:not([type="checkbox"]):not([type="radio"]),
+  textarea,
+  select {
+    font-size: 16px;
+  }
+}
+
+/* Horizontal scrollers (chips, carousels) without a visible scrollbar. */
+@utility scrollbar-none {
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Small enter animation for menus and dialogs: animate-in fade-in slide-in-from-top-4. */
+@keyframes enter {
+  from {
+    opacity: var(--tw-enter-opacity, 1);
+    transform: translate3d(0, var(--tw-enter-translate-y, 0), 0);
+  }
+}
+
+@utility animate-in {
+  animation: enter 0.2s cubic-bezier(0.25, 1, 0.5, 1) both;
+}
+
+@utility fade-in {
+  --tw-enter-opacity: 0;
+}
+
+@utility slide-in-from-top-4 {
+  --tw-enter-translate-y: -1rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-in {
+    animation: none;
+  }
 }
 
 ::selection {
@@ -131,4 +192,179 @@ body {
     --shadow-soft: 0 10px 30px -10px rgba(0, 0, 0, 0.35);
     color-scheme: dark;
   }
+}
+
+/* Issue reader (flipbook). Page elements are created by IssueFlipbook. */
+.issue-book {
+  filter: drop-shadow(0 28px 36px rgb(0 0 0 / 0.45));
+}
+
+.issue-page {
+  background: #fbf8f1;
+  overflow: hidden;
+}
+
+.issue-page img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  user-select: none;
+}
+
+.issue-page--ready img {
+  opacity: 1;
+}
+
+.issue-page:not(.issue-page--ready)::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 30%, rgb(16 36 30 / 0.06) 50%, transparent 70%) #fbf8f1;
+  background-size: 200% 100%;
+  animation: issue-page-shimmer 1.4s linear infinite;
+}
+
+/* Shade toward the spine so an open spread reads as a bound book. */
+.stf__wrapper.--landscape .issue-page::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 14%;
+  pointer-events: none;
+}
+
+.stf__wrapper.--landscape .issue-page--left::after {
+  right: 0;
+  background: linear-gradient(to left, rgb(0 0 0 / 0.22), rgb(0 0 0 / 0.06) 40%, transparent);
+}
+
+.stf__wrapper.--landscape .issue-page--right::after {
+  left: 0;
+  background: linear-gradient(to right, rgb(0 0 0 / 0.22), rgb(0 0 0 / 0.06) 40%, transparent);
+}
+
+@keyframes issue-page-shimmer {
+  from { background-position: 100% 0; }
+  to { background-position: -100% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .issue-page:not(.issue-page--ready)::before {
+    animation: none;
+  }
+}
+
+/* Hero entrance: plain CSS so it starts with the first paint, before any JavaScript. */
+@keyframes hero-rise {
+  from { opacity: 0; transform: translateY(100%); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes hero-fade-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: none; }
+}
+
+.hero-rise {
+  animation: hero-rise 0.6s cubic-bezier(0.25, 1, 0.5, 1) both;
+}
+
+.hero-fade-up {
+  animation: hero-fade-up 0.6s ease-out 0.8s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-rise,
+  .hero-fade-up {
+    animation: none;
+  }
+}
+
+/* ── Skeletons: a soft gold-tinted sweep instead of a blink ─────────────────── */
+.skeleton {
+  background: linear-gradient(
+      100deg,
+      transparent 30%,
+      color-mix(in srgb, var(--secondary) 14%, transparent) 50%,
+      transparent 70%
+    )
+    var(--primary-tint);
+  background-size: 220% 100%;
+  animation: skeleton-sweep 1.6s ease-in-out infinite;
+}
+
+.skeleton-on-dark {
+  background-color: rgb(255 255 255 / 0.08);
+}
+
+@keyframes skeleton-sweep {
+  from { background-position: 120% 0; }
+  to { background-position: -120% 0; }
+}
+
+/* ── Page loader: three bars sliding through ──────────────────────────────────
+   From Uiverse.io by Shoh2008 (MIT). Recoloured through --loader-color so it works on
+   light pages (dark green) and dark overlays (gold). */
+.page-loader {
+  --loader-color: var(--primary);
+  width: 45px;
+  height: 40px;
+  background:
+    linear-gradient(#0000 calc(1 * 100% / 6), var(--loader-color) 0 calc(3 * 100% / 6), #0000 0),
+    linear-gradient(#0000 calc(2 * 100% / 6), var(--loader-color) 0 calc(4 * 100% / 6), #0000 0),
+    linear-gradient(#0000 calc(3 * 100% / 6), var(--loader-color) 0 calc(5 * 100% / 6), #0000 0);
+  background-size: 10px 400%;
+  background-repeat: no-repeat;
+  animation: page-loader-matrix 1s infinite linear;
+}
+
+.page-loader--on-dark {
+  --loader-color: var(--secondary);
+}
+
+.page-loader--large {
+  width: 68px;
+  height: 60px;
+  background-size: 15px 400%;
+}
+
+@keyframes page-loader-matrix {
+  0% { background-position: 0% 100%, 50% 100%, 100% 100%; }
+  100% { background-position: 0% 0%, 50% 0%, 100% 0%; }
+}
+
+.brand-loader-dot {
+  animation: brand-loader-dot 1.4s ease-in-out infinite;
+}
+
+@keyframes brand-loader-dot {
+  0%, 80%, 100% { opacity: 0.2; }
+  40% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton { animation: none; }
+  /* Bars hold still, mid-way, as a static "loading" mark. */
+  .page-loader { animation: none; background-position: 0% 60%, 50% 50%, 100% 40%; }
+  .brand-loader-dot { animation-duration: 2.4s; }
+}
+
+/* Latin faces keep Latin glyphs, Noto Sans Malayalam draws the rest. Applies in both site
+   languages, since admin text (Namaz guide, Dhikr) stays in whatever language it was typed in.
+   Letter-spacing is reset because tracking breaks up Malayalam conjuncts. */
+body,
+.font-body {
+  font-family: var(--font-body), var(--font-malayalam), sans-serif;
+}
+
+.font-display {
+  font-family: var(--font-display), var(--font-malayalam), serif;
+}
+
+html:lang(ml) [class*="tracking-"] {
+  letter-spacing: normal;
 }

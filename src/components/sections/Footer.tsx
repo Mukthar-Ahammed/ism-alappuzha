@@ -2,49 +2,108 @@
 
 import React from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { siteConfig } from "@/data/siteConfig";
+import { defineCopy, useCopy } from "@/lib/i18n/locale";
+
+const copy = defineCopy({
+  en: {
+    logoAlt: "ISM Alappuzha Logo",
+    brand: "ISM",
+    district: "Alappuzha",
+    organization: siteConfig.organization,
+    description: siteConfig.description,
+    address: "Address:",
+    addressValue: siteConfig.contact.address,
+    phone: "Phone:",
+    email: "Email:",
+    quickLinks: "Quick Links",
+    links: Object.fromEntries(siteConfig.navLinks.map((link) => [link.href, link.label])) as Record<
+      string,
+      string
+    >,
+    connect: "Connect With Us",
+    youtube: "YouTube Channel",
+    instagram: "Instagram",
+    facebook: "Facebook Page",
+    whatsapp: "WhatsApp Channel",
+    copyright: "© 2026 ISM Alappuzha. All rights reserved.",
+  },
+  ml: {
+    logoAlt: "ഐ.എസ്.എം ആലപ്പുഴ ലോഗോ",
+    brand: "ഐ.എസ്.എം",
+    district: "ആലപ്പുഴ",
+    organization: "ഇസ്‌ലാമിക് സ്റ്റുഡന്റ്സ് മൂവ്മെന്റ് — ആലപ്പുഴ ജില്ലാ കമ്മിറ്റി",
+    description:
+      "ആധികാരിക ഇസ്‌ലാമിക അറിവിലൂടെയും ധാർമിക ജീവിതത്തിലൂടെയും സാമൂഹിക നേതൃത്വത്തിലൂടെയും ആലപ്പുഴ ജില്ലയിലെ യുവതയെ ശാക്തീകരിക്കുന്നു.",
+    address: "വിലാസം:",
+    addressValue: "ഐ.എസ്.എം ജില്ലാ കേന്ദ്രം, ജില്ലാ കോടതി പാലത്തിന് സമീപം, ആലപ്പുഴ, കേരളം 688001",
+    phone: "ഫോൺ:",
+    email: "ഇമെയിൽ:",
+    quickLinks: "ദ്രുത ലിങ്കുകൾ",
+    links: {
+      "/#videos": "വീഡിയോകൾ",
+      "/#issue": "പ്രസിദ്ധീകരണം",
+      "/#namaz": "നമസ്കാരം",
+      "/#dhikr": "ദിക്ർ & ദുആ",
+      "/#qna": "ചോദ്യോത്തരം",
+      "/#leaders": "നേതൃത്വം",
+    },
+    connect: "ഞങ്ങളുമായി ബന്ധപ്പെടുക",
+    youtube: "യൂട്യൂബ് ചാനൽ",
+    instagram: "ഇൻസ്റ്റാഗ്രാം",
+    facebook: "ഫേസ്ബുക്ക് പേജ്",
+    whatsapp: "വാട്സ്ആപ്പ് ചാനൽ",
+    copyright: "© 2026 ഐ.എസ്.എം ആലപ്പുഴ. എല്ലാ അവകാശങ്ങളും നിക്ഷിപ്തം.",
+  },
+});
 
 export const Footer: React.FC = () => {
+  const t = useCopy(copy);
   return (
-    <footer className="w-full bg-primary border-t border-secondary/20 text-white py-16 font-body">
-      <Container className="grid grid-cols-1 md:grid-cols-4 gap-12">
+    <footer className="w-full bg-primary border-t border-secondary/20 text-white pt-12 pb-[max(2rem,env(safe-area-inset-bottom))] sm:py-16 font-body">
+      <Container className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-10 md:gap-12">
         {/* Brand & Organization Info */}
-        <div className="md:col-span-2">
-          <a href="#" className="flex items-center gap-3 group">
+        <div className="col-span-2">
+          <Link href="/" className="flex items-center gap-3 group">
             <Image
               src={siteConfig.logo}
-              alt="ISM Alappuzha Logo"
+              alt={t.logoAlt}
               width={48}
               height={48}
               className="h-11 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
             />
             <div className="flex flex-col">
               <span className="font-display text-2xl font-bold tracking-tight text-white">
-                ISM <span className="text-secondary font-normal">Alappuzha</span>
+                {t.brand} <span className="text-secondary font-normal">{t.district}</span>
               </span>
               <span className="text-xs text-white/60 font-medium tracking-wide">
-                {siteConfig.organization}
+                {t.organization}
               </span>
             </div>
-          </a>
+          </Link>
 
           <p className="mt-5 text-sm text-white/75 max-w-md leading-relaxed font-body">
-            {siteConfig.description}
+            {t.description}
           </p>
 
-          <div className="mt-6 space-y-1.5 text-xs text-white/60">
-            <p className="flex items-center gap-2">
-              <span className="text-secondary font-semibold">Address:</span>{" "}
-              {siteConfig.contact.address}
+          <div className="mt-6 space-y-2 text-xs text-white/60">
+            <p>
+              <span className="text-secondary font-semibold">{t.address}</span>{" "}
+              {t.addressValue}
             </p>
-            <p className="flex items-center gap-2">
-              <span className="text-secondary font-semibold">Phone:</span>{" "}
-              {siteConfig.contact.phone}
+            <p>
+              <span className="text-secondary font-semibold">{t.phone}</span>{" "}
+              <a href={`tel:${siteConfig.contact.phone.replace(/\s/g, "")}`} className="hover:text-secondary transition-colors">
+                {siteConfig.contact.phone}
+              </a>
             </p>
-            <p className="flex items-center gap-2">
-              <span className="text-secondary font-semibold">Email:</span>{" "}
-              {siteConfig.contact.email}
+            <p>
+              <span className="text-secondary font-semibold">{t.email}</span>{" "}
+              <a href={`mailto:${siteConfig.contact.email}`} className="break-all hover:text-secondary transition-colors">
+                {siteConfig.contact.email}
+              </a>
             </p>
           </div>
         </div>
@@ -52,16 +111,16 @@ export const Footer: React.FC = () => {
         {/* Quick Links */}
         <div>
           <h3 className="font-display text-lg font-medium text-secondary mb-4 tracking-wide">
-            Quick Links
+            {t.quickLinks}
           </h3>
-          <ul className="space-y-2.5 text-sm text-white/75">
+          <ul className="space-y-1 sm:space-y-2.5 text-sm text-white/75">
             {siteConfig.navLinks.map((link) => (
               <li key={link.href}>
                 <a
                   href={link.href}
-                  className="hover:text-secondary transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-secondary rounded-xs"
+                  className="inline-flex min-h-10 items-center sm:min-h-0 hover:text-secondary transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-secondary rounded-xs"
                 >
-                  {link.label}
+                  {t.links[link.href] ?? link.label}
                 </a>
               </li>
             ))}
@@ -71,17 +130,17 @@ export const Footer: React.FC = () => {
         {/* Connect & Socials */}
         <div>
           <h3 className="font-display text-lg font-medium text-secondary mb-4 tracking-wide">
-            Connect With Us
+            {t.connect}
           </h3>
-          <ul className="space-y-2.5 text-sm text-white/75">
+          <ul className="space-y-1 sm:space-y-2.5 text-sm text-white/75">
             <li>
               <a
                 href={siteConfig.socials.youtube}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-secondary transition-colors flex items-center gap-2"
+                className="inline-flex min-h-10 items-center gap-2 sm:min-h-0 hover:text-secondary transition-colors"
               >
-                <span>YouTube Channel</span>
+                <span>{t.youtube}</span>
               </a>
             </li>
             <li>
@@ -89,9 +148,9 @@ export const Footer: React.FC = () => {
                 href={siteConfig.socials.instagram}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-secondary transition-colors flex items-center gap-2"
+                className="inline-flex min-h-10 items-center gap-2 sm:min-h-0 hover:text-secondary transition-colors"
               >
-                <span>Instagram</span>
+                <span>{t.instagram}</span>
               </a>
             </li>
             <li>
@@ -99,9 +158,9 @@ export const Footer: React.FC = () => {
                 href={siteConfig.socials.facebook}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-secondary transition-colors flex items-center gap-2"
+                className="inline-flex min-h-10 items-center gap-2 sm:min-h-0 hover:text-secondary transition-colors"
               >
-                <span>Facebook Page</span>
+                <span>{t.facebook}</span>
               </a>
             </li>
             <li>
@@ -109,9 +168,9 @@ export const Footer: React.FC = () => {
                 href={siteConfig.socials.whatsapp}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-secondary transition-colors flex items-center gap-2"
+                className="inline-flex min-h-10 items-center gap-2 sm:min-h-0 hover:text-secondary transition-colors"
               >
-                <span>WhatsApp Channel</span>
+                <span>{t.whatsapp}</span>
               </a>
             </li>
           </ul>
@@ -119,10 +178,10 @@ export const Footer: React.FC = () => {
       </Container>
 
       {/* Copyright Bar */}
-      <Container className="mt-12 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between text-xs text-white/50 gap-4">
-        <p>© 2026 ISM Alappuzha. All rights reserved.</p>
+      <Container className="mt-10 sm:mt-12 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between text-center sm:text-left text-xs text-white/50 gap-2 sm:gap-4">
+        <p>{t.copyright}</p>
         <p className="font-display text-white/40">
-          Islamic Students Movement — Alappuzha District Committee
+          {t.organization}
         </p>
       </Container>
     </footer>

@@ -3,6 +3,36 @@
 import React, { useState } from "react";
 import type { Question } from "@/lib/types/qa";
 import { Chips } from "@/components/ui/Chips";
+import { QaCardSkeleton } from "@/components/ui/CardSkeletons";
+import { questionCategoryCopy } from "@/components/ui/AskForm";
+import { defineCopy, useCopy, useLocale } from "@/lib/i18n/locale";
+
+const questionCopy = defineCopy({
+  en: {
+    loading: "Loading answered questions…",
+    searchPlaceholder: "Search answered questions…",
+    searchLabel: "Search answered questions",
+    clearSearch: "Clear search",
+    categoryFilter: "Category filter",
+    pending: "Answer pending scholar review.",
+    answeredBy: (name: string) => `Answered by: ${name}`,
+    showMore: (remaining: number) => `Show more questions (${remaining} remaining)`,
+    emptyTitle: "No answered questions yet.",
+    emptyHint: "Ask the first one using the form on the left.",
+  },
+  ml: {
+    loading: "ഉത്തരം നൽകിയ ചോദ്യങ്ങൾ ലോഡ് ചെയ്യുന്നു…",
+    searchPlaceholder: "ഉത്തരം നൽകിയ ചോദ്യങ്ങൾ തിരയുക…",
+    searchLabel: "ഉത്തരം നൽകിയ ചോദ്യങ്ങൾ തിരയുക",
+    clearSearch: "തിരയൽ മായ്ക്കുക",
+    categoryFilter: "വിഭാഗം തിരഞ്ഞെടുക്കുക",
+    pending: "ഉത്തരം പണ്ഡിതരുടെ പരിശോധനയിലാണ്.",
+    answeredBy: (name: string) => `ഉത്തരം നൽകിയത്: ${name}`,
+    showMore: (remaining: number) => `കൂടുതൽ ചോദ്യങ്ങൾ കാണുക (${remaining} എണ്ണം ബാക്കി)`,
+    emptyTitle: "ഉത്തരം നൽകിയ ചോദ്യങ്ങൾ ഇതുവരെ ഇല്ല.",
+    emptyHint: "ഫോം ഉപയോഗിച്ച് ആദ്യ ചോദ്യം ചോദിക്കൂ.",
+  },
+});
 
 interface QaAccordionProps {
   questions: Question[];
@@ -13,6 +43,9 @@ export const QaAccordion: React.FC<QaAccordionProps> = ({
   questions,
   loading = false,
 }) => {
+  const t = useCopy(questionCopy);
+  const categoryLabels = useCopy(questionCategoryCopy);
+  const locale = useLocale();
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState<string>("All");
   const [openId, setOpenId] = useState<string | null>(null);
@@ -44,16 +77,11 @@ export const QaAccordion: React.FC<QaAccordionProps> = ({
 
   if (loading) {
     return (
-      <div className="space-y-4 font-body" aria-label="Loading questions">
-        {[1, 2, 3].map((n) => (
-          <div
-            key={n}
-            className="bg-white rounded-[var(--radius-card)] p-6 border border-border-subtle animate-pulse space-y-3"
-          >
-            <div className="h-4 w-24 bg-primary-tint rounded-full" />
-            <div className="h-6 w-3/4 bg-primary-tint rounded-md" />
-            <div className="h-4 w-1/2 bg-primary-tint rounded-md" />
-          </div>
+      <div className="space-y-4 font-body">
+        <p role="status" className="sr-only">{t.loading}</p>
+        <div className="skeleton h-12 w-full rounded-full" aria-hidden="true" />
+        {[false, true, false].map((wide, n) => (
+          <QaCardSkeleton key={n} wide={wide} />
         ))}
       </div>
     );
@@ -85,15 +113,15 @@ export const QaAccordion: React.FC<QaAccordionProps> = ({
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search answered questions…"
-            aria-label="Search answered questions"
+            placeholder={t.searchPlaceholder}
+            aria-label={t.searchLabel}
             className="w-full pl-11 pr-4 py-3 rounded-full border border-border-subtle bg-white text-sm text-primary placeholder:text-text-muted/50
               focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent transition-all duration-200"
           />
           {search && (
             <button
               onClick={() => setSearch("")}
-              aria-label="Clear search"
+              aria-label={t.clearSearch}
               className="absolute inset-y-0 right-0 pr-4 flex items-center text-text-muted hover:text-primary transition-colors"
             >
               <svg
@@ -119,6 +147,8 @@ export const QaAccordion: React.FC<QaAccordionProps> = ({
           categories={categories}
           activeCategory={activeCategory}
           onChange={setActiveCategory}
+          getLabel={(category) => categoryLabels[category] ?? category}
+          label={t.categoryFilter}
           variant="dark"
         />
       </div>
@@ -146,7 +176,7 @@ export const QaAccordion: React.FC<QaAccordionProps> = ({
                   <div className="space-y-2">
                     {/* Category Pill */}
                     <span className="inline-flex px-3 py-0.5 rounded-full text-[11px] font-semibold uppercase tracking-wider bg-secondary-tint text-secondary">
-                      {q.category}
+                      {categoryLabels[q.category] ?? q.category}
                     </span>
 
                     {/* Question Text */}
@@ -191,19 +221,19 @@ export const QaAccordion: React.FC<QaAccordionProps> = ({
                     <div className="px-6 pb-6 pt-2 border-t border-border-subtle/50 space-y-4">
                       {/* Answer Text */}
                       <p className="text-sm sm:text-base font-body leading-relaxed text-text-main">
-                        {q.answer || "Answer pending scholar review."}
+                        {q.answer || t.pending}
                       </p>
 
                       {/* Metadata: Answered By & Date */}
                       <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-text-muted pt-2 border-t border-border-subtle/30">
                         {q.answeredBy && (
                           <span className="font-medium text-secondary">
-                            Answered by: {q.answeredBy}
+                            {t.answeredBy(q.answeredBy)}
                           </span>
                         )}
                         {q.answeredAt && (
                           <span className="text-text-muted/70">
-                            {new Date(q.answeredAt).toLocaleDateString("en-US", {
+                            {new Date(q.answeredAt).toLocaleDateString(locale === "ml" ? "ml-IN" : "en-US", {
                               month: "short",
                               day: "numeric",
                               year: "numeric",
@@ -226,7 +256,7 @@ export const QaAccordion: React.FC<QaAccordionProps> = ({
                 className="px-6 py-2.5 rounded-full bg-primary-tint text-primary text-xs font-semibold hover:bg-primary/10 transition-colors
                   focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               >
-                Show more questions ({filtered.length - visibleCount} remaining)
+                {t.showMore(filtered.length - visibleCount)}
               </button>
             </div>
           )}
@@ -252,10 +282,10 @@ export const QaAccordion: React.FC<QaAccordionProps> = ({
             </svg>
           </div>
           <p className="text-lg font-medium text-primary mb-1">
-            No answered questions yet.
+            {t.emptyTitle}
           </p>
           <p className="text-sm text-text-muted">
-            Ask the first one using the form on the left.
+            {t.emptyHint}
           </p>
         </div>
       )}

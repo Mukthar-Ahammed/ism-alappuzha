@@ -7,6 +7,7 @@ export type AdminRole = (typeof adminRoles)[number];
 export type AdminContext = {
   user: User;
   role: AdminRole;
+  mustChangePassword: boolean;
 };
 
 export type ActionResult<T> =
@@ -15,3 +16,6 @@ export type ActionResult<T> =
 
 export const genericLoginError =
   "We could not sign you in. Check your details and try again.";
+
+/** Result of a form action that reports a message; null before the first submit. */
+export type MessageActionState = ActionResult<{ message: string }> | null;

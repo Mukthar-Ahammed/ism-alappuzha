@@ -8,8 +8,25 @@ import { DhikrLibrary } from "@/components/sections/DhikrLibrary";
 import { QnASection } from "@/components/sections/QnASection";
 import { Leadership } from "@/components/sections/Leadership";
 import { Footer } from "@/components/sections/Footer";
+import { getPublicLeaders } from "@/features/leaders/server/data";
+import { getPublicLive } from "@/features/live/server/data";
+import { getPublicPrograms } from "@/features/programs/server/data";
+import { getPublicVideos } from "@/features/videos/server/data";
+import { getPublicIssues } from "@/features/issues/server/data";
+import { getPublicDhikr } from "@/features/dhikr/server/data";
+import { getPublicNamazSteps } from "@/features/namaz/server/data";
 
-export default function Home() {
+export default async function Home() {
+  const [leaders, live, programs, videos, issues, dhikr, namazSteps] = await Promise.all([
+    getPublicLeaders(),
+    getPublicLive(),
+    getPublicPrograms(),
+    getPublicVideos(),
+    getPublicIssues(),
+    getPublicDhikr(),
+    getPublicNamazSteps(),
+  ]);
+
   return (
     <SmoothScroll>
       <main className="relative min-h-screen bg-bg text-text-main w-full overflow-x-hidden pt-20">
@@ -17,25 +34,25 @@ export default function Home() {
         <Hero />
 
         {/* 2. Live Now Section */}
-        <LiveNow />
+        <LiveNow live={live} programs={programs} />
 
         {/* 3. Speeches & Videos Section */}
-        <Videos />
+        <Videos videos={videos} />
 
         {/* 4. Latest Issue Section */}
-        <LatestIssue />
+        <LatestIssue issues={issues} />
 
         {/* 5. Namaz Guide Section */}
-        <NamazGuide />
+        <NamazGuide steps={namazSteps} />
 
         {/* 6. Dhikr & Dua Library Section */}
-        <DhikrLibrary isHomePage={true} />
+        <DhikrLibrary items={dhikr} isHomePage={true} />
 
         {/* 7. Public Q&A Section */}
         <QnASection />
 
         {/* 8. Leadership Section */}
-        <Leadership />
+        <Leadership leaders={leaders} />
 
         {/* Footer */}
         <Footer />

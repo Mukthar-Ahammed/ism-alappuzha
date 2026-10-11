@@ -30,11 +30,11 @@ export const siteConfig = {
     },
   },
   navLinks: [
-    { label: "Videos", href: "#videos" },
-    { label: "Issue", href: "#issue" },
-    { label: "Namaz", href: "#namaz" },
-    { label: "Dhikr & Dua", href: "#dhikr" },
-    { label: "Q&A", href: "#qa" },
-    { label: "Leaders", href: "#leaders" },
+    { label: "Videos", href: "/#videos" },
+    { label: "Issue", href: "/#issue" },
+    { label: "Namaz", href: "/#namaz" },
+    { label: "Dhikr & Dua", href: "/#dhikr" },
+    { label: "Q&A", href: "/#qna" },
+    { label: "Leaders", href: "/#leaders" },
   ],
 };

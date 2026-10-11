@@ -12,7 +12,11 @@ export function AdminShell({
   children: React.ReactNode;
 }) {
   return (
-    <AdminNavigation role={admin.role} pendingCount={counts.questions.pending}>
+    <AdminNavigation
+      role={admin.role}
+      pendingCount={counts.questions.pending}
+      mustChangePassword={admin.mustChangePassword}
+    >
       {children}
     </AdminNavigation>
   );

@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { redirectIfSignedIn } from "@/lib/auth/guard";
 import { sanitizeAdminNext } from "@/lib/auth/redirect";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { AuthBrand } from "../AuthBrand";
@@ -11,6 +12,7 @@ export default async function VerifyPage({
 }) {
   const params = await searchParams;
   const next = sanitizeAdminNext(params.next);
+  await redirectIfSignedIn(next);
   const supabase = await createSupabaseServerClient();
   const user = await supabase.auth.getUser();
 
