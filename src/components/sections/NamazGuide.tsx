@@ -12,6 +12,7 @@ import {
   type RakahInfo,
 } from "@/data/namaz";
 import { NamazSkip } from "@/components/sections/NamazSkip";
+import { PrayerTimes } from "@/components/sections/PrayerTimes";
 import { usePrefersReducedMotion } from "@/lib/hooks/usePrefersReducedMotion";
 import { defineCopy, useCopy, useLocale } from "@/lib/i18n/locale";
 
@@ -166,6 +167,9 @@ const NamazGuideContent: React.FC<{ steps: PrayerStep[] }> = ({ steps }) => {
           </p>
           <NamazSkip placement="inline" {...skipProps} />
         </div>
+
+        {/* Today's times: a quiet reference above the step-by-step guide. */}
+        <PrayerTimes className="max-w-3xl mx-auto mb-10 sm:mb-14" />
 
         {/* 1. NIYYAH (INTENTION) — Featured at Top (No Stickman Figure, No Timeline Scroll Animation) */}
         <div className="max-w-3xl mx-auto mb-10 sm:mb-16">
