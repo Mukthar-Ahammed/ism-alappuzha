@@ -151,6 +151,7 @@ create or replace function public.check_rate_limit(key text, max_hits int, windo
 returns boolean
 language plpgsql
 as $$
+#variable_conflict use_column
 declare
   allowed boolean;
 begin
@@ -173,7 +174,7 @@ begin
             else rate_limit.window_start
           end,
           updated_at = now()
-    returning hit_count <= $2 as allowed
+    returning rate_limit.hit_count <= $2 as allowed
   )
   select upserted.allowed into allowed
   from upserted;

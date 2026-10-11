@@ -45,9 +45,9 @@ describe("checkRateLimit", () => {
     );
   });
 
-  it("allows local development when the unapplied SQL repair is detected", async () => {
-    const originalNodeEnv = process.env.NODE_ENV;
+  it("fails closed on the ambiguous-column error in every environment", async () => {
     vi.stubEnv("NODE_ENV", "development");
+    vi.spyOn(console, "error").mockImplementation(() => {});
     rpc.mockResolvedValue({
       data: null,
       error: {
@@ -58,8 +58,8 @@ describe("checkRateLimit", () => {
     const { checkRateLimit } = await import("@/lib/auth/rate-limit");
 
     await expect(checkRateLimit("admin:login:test", 5, 900)).resolves.toBe(
-      true
+      false
     );
-    vi.stubEnv("NODE_ENV", originalNodeEnv);
+    vi.unstubAllEnvs();
   });
 });

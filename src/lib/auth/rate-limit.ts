@@ -15,14 +15,9 @@ export async function checkRateLimit(
   });
 
   if (error) {
-    if (
-      process.env.NODE_ENV === "development" &&
-      error.code === "42702" &&
-      error.message.includes('column reference "key" is ambiguous')
-    ) {
-      return true;
-    }
-
+    // Fails closed: a broken check refuses the attempt. Logged so it is never mistaken
+    // for a wrong password (supabase/fix-rate-limit-combined.sql repairs error 42702).
+    console.error("[rate-limit] check_rate_limit RPC failed:", error.code, error.message);
     return false;
   }
 
