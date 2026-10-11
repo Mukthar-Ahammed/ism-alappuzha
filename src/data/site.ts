@@ -23,7 +23,7 @@ export interface SiteConfig {
 
 export const siteData: SiteConfig = {
   name: "ISM Alappuzha",
-  organization: "Islamic Students Movement — Alappuzha District Committee",
+  organization: "Ithihadu Shubbanil Mujahideen — Alappuzha District Committee",
   tagline: "Learn. Practise. Serve.",
   description:
     "Grounding youth across Alappuzha district in authentic Islamic knowledge, ethical practice, and courageous community leadership.",

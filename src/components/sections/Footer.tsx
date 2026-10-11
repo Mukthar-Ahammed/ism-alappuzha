@@ -29,12 +29,13 @@ const copy = defineCopy({
     facebook: "Facebook Page",
     whatsapp: "WhatsApp Channel",
     copyright: "© 2026 ISM Alappuzha. All rights reserved.",
+    backToTop: "Back to top",
   },
   ml: {
     logoAlt: "ഐ.എസ്.എം ആലപ്പുഴ ലോഗോ",
     brand: "ഐ.എസ്.എം",
     district: "ആലപ്പുഴ",
-    organization: "ഇസ്‌ലാമിക് സ്റ്റുഡന്റ്സ് മൂവ്മെന്റ് — ആലപ്പുഴ ജില്ലാ കമ്മിറ്റി",
+    organization: "ഇത്തിഹാദു ശുബ്ബാനിൽ മുജാഹിദീൻ — ആലപ്പുഴ ജില്ലാ കമ്മിറ്റി",
     description:
       "ആധികാരിക ഇസ്‌ലാമിക അറിവിലൂടെയും ധാർമിക ജീവിതത്തിലൂടെയും സാമൂഹിക നേതൃത്വത്തിലൂടെയും ആലപ്പുഴ ജില്ലയിലെ യുവതയെ ശാക്തീകരിക്കുന്നു.",
     address: "വിലാസം:",
@@ -56,8 +57,14 @@ const copy = defineCopy({
     facebook: "ഫേസ്ബുക്ക് പേജ്",
     whatsapp: "വാട്സ്ആപ്പ് ചാനൽ",
     copyright: "© 2026 ഐ.എസ്.എം ആലപ്പുഴ. എല്ലാ അവകാശങ്ങളും നിക്ഷിപ്തം.",
+    backToTop: "മുകളിലേക്ക് പോകുക",
   },
 });
+
+function scrollToTop() {
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
+}
 
 export const Footer: React.FC = () => {
   const t = useCopy(copy);
@@ -178,11 +185,28 @@ export const Footer: React.FC = () => {
       </Container>
 
       {/* Copyright Bar */}
-      <Container className="mt-10 sm:mt-12 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between text-center sm:text-left text-xs text-white/50 gap-2 sm:gap-4">
-        <p>{t.copyright}</p>
-        <p className="font-display text-white/40">
-          {t.organization}
-        </p>
+      <Container className="mt-10 sm:mt-12 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between text-center sm:text-left text-xs text-white/50 gap-4">
+        <button
+          type="button"
+          onClick={scrollToTop}
+          className="group order-first sm:order-last inline-flex min-h-11 items-center gap-2.5 rounded-full border border-secondary/40 bg-secondary/10 py-1.5 pl-4 pr-1.5 text-sm font-semibold text-secondary transition-colors hover:bg-secondary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-primary"
+        >
+          <span>{t.backToTop}</span>
+          <span
+            aria-hidden="true"
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary text-primary transition-transform group-hover:-translate-y-0.5 group-hover:bg-primary group-hover:text-secondary motion-reduce:transition-none motion-reduce:group-hover:translate-y-0"
+          >
+            <svg className="h-4 w-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 19V5m-6 6l6-6 6 6" />
+            </svg>
+          </span>
+        </button>
+        <div className="space-y-1">
+          <p>{t.copyright}</p>
+          <p className="font-display text-white/40">
+            {t.organization}
+          </p>
+        </div>
       </Container>
     </footer>
   );

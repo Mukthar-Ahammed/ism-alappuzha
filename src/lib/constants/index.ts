@@ -9,7 +9,7 @@ import {
 } from "@/lib/types";
 
 export const SITE_CONFIG = {
-  name: "Islamic Students Movement",
+  name: "Ithihadu Shubbanil Mujahideen",
   shortName: "ISM",
   tagline: "Intellectual Vitality & Spiritual Guidance for the Next Generation",
   description:
@@ -35,7 +35,7 @@ export const SOCIAL_LINKS: SocialLink[] = [
 ];
 
 export const HERO_COPY = {
-  eyebrow: "Islamic Students Movement",
+  eyebrow: "Ithihadu Shubbanil Mujahideen",
   title: "Empowering Minds. Elevating Character.",
   subtitle:
     "An editorial movement grounding campus youth in timeless divine wisdom, critical inquiry, and courageous leadership.",
@@ -130,7 +130,7 @@ export const TESTIMONIALS: TestimonialItem[] = [
 export const FAQ_ITEMS: FAQItem[] = [
   {
     id: "f1",
-    question: "What is the core mission of the Islamic Students Movement?",
+    question: "What is the core mission of the Ithihadu Shubbanil Mujahideen?",
     answer:
       "ISM aims to cultivate an intellectually vibrant, morally grounded generation of student leaders who excel academically while actively serving their communities with Islamic principles.",
   },

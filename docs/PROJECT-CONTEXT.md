@@ -2,7 +2,7 @@
 
 ## Product Identity
 
-ISM Alappuzha is a public web platform for the Islamic Students Movement Alappuzha District Committee. The site is positioned as an Islamic youth education and community portal built around the tagline:
+ISM Alappuzha is a public web platform for the Ithihadu Shubbanil Mujahideen Alappuzha District Committee. The site is positioned as an Islamic youth education and community portal built around the tagline:
 
 ```text
 Learn. Practise. Serve.

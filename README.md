@@ -1,6 +1,6 @@
-# Islamic Students Movement (ISM) — Web Platform
+# Ithihadu Shubbanil Mujahideen (ISM) — Web Platform
 
-An editorial, cinematic Next.js web application for the Islamic Students Movement (ISM). Built with a 3D scroll-driven interactive hero section, custom design system, and structured section layout.
+An editorial, cinematic Next.js web application for the Ithihadu Shubbanil Mujahideen (ISM). Built with a 3D scroll-driven interactive hero section, custom design system, and structured section layout.
 
 ## 🚀 Tech Stack
 

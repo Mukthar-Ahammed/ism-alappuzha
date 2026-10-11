@@ -14,7 +14,7 @@ const copy = defineCopy({
     titleTop: "Our",
     titleBottom: "Leadership",
     description:
-      "The Islamic Students Movement is led by a dedicated team of scholars, educators, and student organizers committed to fostering academic excellence, spiritual growth, and ethical leadership in every campus chapter across Kerala.",
+      "The Ithihadu Shubbanil Mujahideen is led by a dedicated team of scholars, educators, and student organizers committed to fostering academic excellence, spiritual growth, and ethical leadership in every campus chapter across Kerala.",
     subtitle:
       "Scholarly fellows, directors, and student leaders guiding our movement across campuses.",
   },
@@ -23,7 +23,7 @@ const copy = defineCopy({
     titleTop: "ഞങ്ങളുടെ",
     titleBottom: "നേതൃത്വം",
     description:
-      "കേരളത്തിലെ എല്ലാ കാമ്പസ് ഘടകങ്ങളിലും അക്കാദമിക മികവും ആത്മീയ വളർച്ചയും ധാർമിക നേതൃത്വവും വളർത്താൻ പ്രതിജ്ഞാബദ്ധരായ പണ്ഡിതരും അധ്യാപകരും വിദ്യാർത്ഥി സംഘാടകരും അടങ്ങുന്ന സമർപ്പിത സംഘമാണ് ഇസ്‌ലാമിക് സ്റ്റുഡന്റ്സ് മൂവ്മെന്റിനെ നയിക്കുന്നത്.",
+      "കേരളത്തിലെ എല്ലാ കാമ്പസ് ഘടകങ്ങളിലും അക്കാദമിക മികവും ആത്മീയ വളർച്ചയും ധാർമിക നേതൃത്വവും വളർത്താൻ പ്രതിജ്ഞാബദ്ധരായ പണ്ഡിതരും അധ്യാപകരും വിദ്യാർത്ഥി സംഘാടകരും അടങ്ങുന്ന സമർപ്പിത സംഘമാണ് ഇത്തിഹാദു ശുബ്ബാനിൽ മുജാഹിദീനെ നയിക്കുന്നത്.",
     subtitle:
       "കാമ്പസുകളിലുടനീളം ഞങ്ങളുടെ പ്രസ്ഥാനത്തെ നയിക്കുന്ന പണ്ഡിതരും ഭാരവാഹികളും വിദ്യാർത്ഥി നേതാക്കളും.",
   },

@@ -85,7 +85,7 @@ export const joinCtaContent: SectionContent = {
 
 export const footerContent = {
   id: "footer",
-  heading: "Islamic Students Movement",
+  heading: "Ithihadu Shubbanil Mujahideen",
   description: "An editorial movement uniting students across campuses in pursuit of truth, academic excellence, ethical fortitude, and societal transformation.",
-  copyright: "© 2026 Islamic Students Movement. All rights reserved.",
+  copyright: "© 2026 Ithihadu Shubbanil Mujahideen. All rights reserved.",
 };

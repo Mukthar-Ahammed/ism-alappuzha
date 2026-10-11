@@ -48,10 +48,10 @@ export const metadata: Metadata = {
     template: "%s | ISM Alappuzha",
   },
   description:
-    "Islamic Students Movement (ISM) Alappuzha District. Grounding youth in Islamic knowledge, authentic practice, and community service.",
+    "Ithihadu Shubbanil Mujahideen (ISM) Alappuzha District. Grounding youth in Islamic knowledge, authentic practice, and community service.",
   keywords: [
     "ISM Alappuzha",
-    "Islamic Students Movement Alappuzha",
+    "Ithihadu Shubbanil Mujahideen Alappuzha",
     "ISM Kerala",
     "Islamic Education Kerala",
     "Alappuzha Youth",
@@ -72,7 +72,7 @@ export const metadata: Metadata = {
     url: "/",
     title: "ISM Alappuzha — Learn. Practise. Serve.",
     description:
-      "Official portal of Islamic Students Movement (ISM) Alappuzha District Committee.",
+      "Official portal of Ithihadu Shubbanil Mujahideen (ISM) Alappuzha District Committee.",
     siteName: "ISM Alappuzha",
     images: [
       {

@@ -2,7 +2,7 @@
 
 ## Overview
 
-This website is a Next.js web platform for ISM Alappuzha, the Islamic Students Movement Alappuzha District Committee. The public message is centered on the tagline "Learn. Practise. Serve." and the site presents ISM Alappuzha as a youth-focused Islamic education, practice, media, and community leadership portal.
+This website is a Next.js web platform for ISM Alappuzha, the Ithihadu Shubbanil Mujahideen Alappuzha District Committee. The public message is centered on the tagline "Learn. Practise. Serve." and the site presents ISM Alappuzha as a youth-focused Islamic education, practice, media, and community leadership portal.
 
 The application is built as an editorial, interactive single-page experience with a dedicated full Dhikr and Dua library route. It combines structured religious learning content, media publishing, live program promotion, public Q&A, and leadership information.
 
